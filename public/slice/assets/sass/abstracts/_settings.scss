@@ -1,0 +1,393 @@
+@use "variables" as *;
+@use "mixins" as *;
+
+/* Setting Style
+======================*/
+*,
+:focus {
+    outline: 0 !important;
+    scroll-behavior: smooth;
+}
+
+::selection {
+    background-color: $main_color !important;
+    color: $white_color !important;
+}
+
+::-webkit-scrollbar {
+    background-color: $main_bc;
+    width: 5px;
+    height: 5px;
+    opacity: 1;
+    @include border_radius(25px)
+}
+
+::-webkit-scrollbar-track {
+    background-color: $main_bc;
+    @include border_radius(25px)
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: $main-color;
+    @include border_radius(25px)
+}
+
+body {
+    font-family: $main_font;
+    overflow: hidden;
+    width: 100%;
+    font-weight: $weight_reg;
+    position: relative;
+    text-align: start;
+    background-color: $main_bc;
+    color: $dark_color;
+}
+
+
+/* Lists  
+======================*/
+ul {
+    display: block;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+        display: inline-block;
+    }
+}
+
+
+/* Links 
+======================*/
+a,
+a:hover,
+a:focus {
+    cursor: pointer;
+    text-decoration: none;
+}
+
+/*Images
+======================*/
+img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 0 auto;
+}
+
+@include mediaquery(min, desktop) {
+    .container {
+        max-width: 1280px;
+    }
+}
+
+.mn-h-auto {
+    min-height: auto !important;
+}
+
+/* Colors
+==========================*/
+.main-color {
+    color: $main_color;
+}
+
+.second-color {
+    color: $second_color;
+}
+
+.third-color {
+    color: $third_color;
+}
+.white-color {
+    color: $white_color;
+}
+
+.dark-color {
+    color: $dark_color;
+}
+
+.red-color {
+    color: $red_color;
+}
+.dark-gray-color{
+    color: $dark_gray_color;
+}
+/* Background Colors
+==========================*/
+.main_bc {
+    background-color: $main_color;
+}
+
+.second_bc {
+    background-color: $second_color;
+}
+
+.third_bc {
+    background-color: $third_color;
+}
+
+.white_bc {
+    background-color: $white_color;
+}
+
+.dark_bc {
+    background-color: $dark_color;
+}
+
+.gray-bc{
+    background-color: $gray_color;
+}
+
+.dark_gray_bc{
+    background-color: $dark_gray_color;
+}
+
+.border-bc{
+    background-color: $border_color;
+}
+.light_third_bc{
+    background-color: rgba($third_color, 25%);
+}
+.light_second_bc{
+    background-color: rgba($second_color, 25%);
+}
+.light_main_bc{
+    background-color: rgba($main_color, 25%);
+}
+.main_border{
+    border: 1px solid $main_color !important;
+}
+.second_border{
+    border: 1px solid $second_color !important;
+}
+.third_border{
+    border: 1px solid $third_color !important;
+}
+.dark_border{
+    border: 1px solid $dark_color !important;
+}
+.border-radius{
+    @include border-radius($border-radius);
+}
+
+/* Gap
+======================*/
+.gap-1{
+    gap: 4px;
+}
+
+.gap-2 {
+    gap: 8px;
+}
+
+.gap-4 {
+    gap: 16px;
+}
+.gap-8 {
+    gap: 32px;
+}
+.w-64{
+    width: 64px;
+}
+.w-124{
+    width: 124px;
+}
+
+
+/* Font
+==========================*/
+.rg_font {
+    font-family: $main_font;
+    font-weight: $weight_reg;
+}
+
+.fw-normal {
+    font-weight: $weight_reg;
+}
+
+.fw-bold {
+    font-weight: $weight_bold;
+}
+
+.text-start {
+    text-align: start;
+}
+
+/* Cursor
+=========================*/
+.cursor {
+    z-index: 9999;
+    position: fixed;
+    width: 20px;
+    height: 20px;
+    background-color: $second_color;
+    @include transform(translate(-50%, -50%));
+    @include border_radius(50%);
+    pointer-events: none;
+    @include transition(0.3s, none, linear);
+    transition-property: background-color, width, height;
+
+    @include mediaquery(max, desktop) {
+        display: none !important;
+    }
+}
+
+/* Loader
+======================*/
+
+.preloader {
+    position: fixed;
+    z-index: 999999;
+    background-color: $white-color;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preloader .lds-spinner {
+    color: official;
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+.preloader .lds-spinner div {
+    transform-origin: 40px 40px;
+    animation: lds-spinner 1.2s linear infinite;
+}
+
+.preloader .lds-spinner div::after {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 5px;
+    left: 35px;
+    width: 5px;
+    height: 20px;
+    border-radius: 20%;
+    background: $main-color;
+}
+
+.preloader .lds-spinner div:nth-child(1) {
+    transform: rotate(0);
+    animation-delay: -1.1s;
+}
+
+.preloader .lds-spinner div:nth-child(2) {
+    transform: rotate(30deg);
+    animation-delay: -1s;
+}
+
+.preloader .lds-spinner div:nth-child(3) {
+    transform: rotate(60deg);
+    animation-delay: -0.9s;
+}
+
+.preloader .lds-spinner div:nth-child(4) {
+    transform: rotate(90deg);
+    animation-delay: -0.8s;
+}
+
+.preloader .lds-spinner div:nth-child(5) {
+    transform: rotate(120deg);
+    animation-delay: -0.7s;
+}
+
+.preloader .lds-spinner div:nth-child(6) {
+    transform: rotate(150deg);
+    animation-delay: -0.6s;
+}
+
+.preloader .lds-spinner div:nth-child(7) {
+    transform: rotate(180deg);
+    animation-delay: -0.5s;
+}
+
+.preloader .lds-spinner div:nth-child(8) {
+    transform: rotate(210deg);
+    animation-delay: -0.4s;
+}
+
+.preloader .lds-spinner div:nth-child(9) {
+    transform: rotate(240deg);
+    animation-delay: -0.3s;
+}
+
+.preloader .lds-spinner div:nth-child(10) {
+    transform: rotate(270deg);
+    animation-delay: -0.2s;
+}
+
+.preloader .lds-spinner div:nth-child(11) {
+    transform: rotate(300deg);
+    animation-delay: -0.1s;
+}
+
+.preloader .lds-spinner div:nth-child(12) {
+    transform: rotate(330deg);
+    animation-delay: 0s;
+}
+
+@-webkit-keyframes lds-spinner {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes lds-spinner {
+    0% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+}
+
+.page_content {
+    z-index: 999;
+    position: relative;
+    margin-top: 115px;
+    padding: 64px 0 114px;
+    @include mediaquery(max, desktop) {
+        margin-top: 100px;
+    }
+}
+.img_box{
+    min-width: 34px;
+    height: 34px;
+    @include border-radius(50%);
+    img {
+        object-fit: contain;
+        object-position: center;
+    }
+}
+.border_bottom{
+    border-bottom: 1px solid $border_color;
+}
+.border_end{
+    border-inline-end: 1px solid $border_color !important;
+}
+.border_start{
+    border-inline-start: 1px solid $border_color !important;
+}
+.border-radius-0{
+    border-radius: 0 !important;
+}
+.resize_32{
+    @include mediaquery(max, mobile) {
+        font-size: 18px;
+    }
+}

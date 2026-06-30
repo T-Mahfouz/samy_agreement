@@ -1,0 +1,115 @@
+$prefixes: (
+	"-webkit-",
+	"-moz-",
+	"-ms-",
+	"-o-",
+	""
+);
+$breakpoints: (
+	xs_mobile: 380px,
+	mobile: 576px,
+	tablet: 768px,
+	desktop: 992px,
+	l_desktop: 1280px,
+	xl_desktop: 1360px
+);
+
+// Media Query
+@mixin mediaquery($direction, $breakpoint) {
+	$breakpoint_value: map-get($breakpoints, $breakpoint);
+
+	@if $direction ==max {
+		@media (max-width: ($breakpoint_value - 1)) {
+			@content;
+		}
+	}
+
+	@if $direction ==min {
+		@media (min-width: ($breakpoint_value)) {
+			@content;
+		}
+	}
+}
+
+// Transform Mixin
+@mixin transform($translate, $rotate: false, $scale: false) {
+	@each $prefix in $prefixes {
+		#{$prefix}transform: $translate;
+
+		@if $rotate {
+			#{$prefix}transform: $rotate;
+		}
+
+		@if $scale {
+			#{$prefix}transform: $scale;
+		}
+	}
+}
+
+// Transition Mixin
+@mixin transition($args...) {
+	@each $prefix in $prefixes {
+		#{$prefix}transition: $args;
+	}
+}
+
+// Border Raduis  Mixin
+@mixin border_radius($radius_value) {
+	@each $prefix in ("-webkit-", "-moz-", "") {
+		#{$prefix}border-radius: $radius_value;
+	}
+}
+
+// Box Shadow Mixin
+@mixin box_shadow($x, $y, $blur, $spd, $color) {
+	@each $prefix in $prefixes {
+		#{$prefix}box-shadow: $x $y $blur $spd $color;
+	}
+}
+
+// No Box Shadow Mixin
+@mixin box_no_shadow {
+	@each $prefix in $prefixes {
+		#{$prefix}box-shadow: none;
+	}
+}
+
+// margin - padding  
+$space-list: 0 4 8 10 12 16 24 32 48 58 64 72;
+@each $space in $space-list {
+	.pb_#{$space} {
+        padding-bottom: $space+px !important;
+    }
+	.pt_#{$space} {
+        padding-top: $space+px !important;
+    }
+	.pst_#{$space} {
+        padding-inline-start: $space+px !important;
+    }
+	.pe_#{$space} {
+        padding-inline-end: $space+px !important;
+    }
+	.p_#{$space} {
+        padding: $space+px;
+    }
+	.mt_#{$space} {
+		margin-top:  $space+px !important;;
+	}
+	.mb_#{$space} {
+		margin-bottom:  $space+px !important;;
+	}
+	.ms_#{$space} {
+		margin-inline-start:  $space+px !important;;
+	}
+	.me_#{$space} {
+		margin-inline-end:  $space+px !important;;
+	}
+}
+
+// Font Size
+$font-size-list: 8 10 12 14 16 18 20 24 32 34 36 40 48 64;
+@each $value in $font-size-list {
+	.fs-#{$value} {
+		font-size: $value+px;
+	}
+}

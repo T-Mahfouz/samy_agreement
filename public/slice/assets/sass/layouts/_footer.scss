@@ -1,0 +1,70 @@
+@use "../abstracts/mixins" as *;
+@use "../abstracts/variables" as *;
+
+footer {
+    .container{
+        border-bottom: 1px solid $border_color;
+    }
+    .brand{
+        img{
+            width: 80px;
+        }
+    }
+    .topbar {
+        li {
+            a {
+                line-height: 20px;
+                border-inline-end: 1px solid $white_color;
+                &:hover{
+                    color: $white_color;
+                    text-decoration: underline;
+                }
+            }
+
+            &:last-child a {
+                border-inline-end: none;
+            }
+        }
+    }
+    @include mediaquery(max, desktop) {
+        .stores{
+            margin-top: 24px;
+        }
+    }
+}
+
+
+.social {
+    border: solid $border_color;
+    border-width: 0 1px;
+    max-width: 340px;
+    margin: auto;
+    a {
+        background-color: $main_color;
+        width: 40px;
+        height: 40px;
+        display: block;
+        @include border-radius(50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        @include transition(0.3s ease all);
+
+        img {
+            width: 18px;
+            height: 18px;
+            object-fit: contain;
+            object-position: center;
+            filter: brightness(0) invert(1);
+        }
+
+        &:hover {
+            background-color: $second_color;
+        }
+    }
+
+@include mediaquery(max, mobile) {
+    margin-top: 24px;
+}
+}
+

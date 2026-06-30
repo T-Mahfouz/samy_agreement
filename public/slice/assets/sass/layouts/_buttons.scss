@@ -1,0 +1,138 @@
+@use "../abstracts/mixins" as *;
+@use "../abstracts/variables" as *;
+
+.main_btn {
+    display: inline-block;
+    @include border-radius(50px);
+    border: 0;
+    padding: 0 40px;
+    min-height: 44px;
+    line-height: 44px;
+    background-color: $main-color;
+    color: $white_color;
+    @include transition(0.3s ease all);
+    @include box_shadow(0, 0, 7px,5px, rgba($main_color, 0.25));
+
+    &:hover {
+        background-color: $second_color;
+        color: $white_color;
+        @include box_shadow(0, 0, 7px,5px, rgba($second_color, 0.25));
+    }
+
+    &.light {
+        background-color: $white_color;
+        color: $main_color;
+        border: 1px solid $main_color;
+        
+        @include box_no_shadow;
+
+        &:hover {
+            background-color: $main_color;
+            color: $white_color;
+        }
+    }
+    
+    &.second {
+        background-color: $second-color;
+        color: $white_color;
+        @include box_shadow(0, 0, 7px,5px, rgba($second_color, 0.25));
+
+        &:hover {
+            background-color: $main_color;
+            color: $white_color;
+            @include box_shadow(0, 0, 7px,5px, rgba($main_color, 0.25));
+        }
+    }
+
+    &.second_light {
+        background-color: $white_color;
+        color: $second_color;
+        border: 1px solid $second_color;
+        
+        @include box_no_shadow;
+        &:hover {
+            background-color: $second_color;
+            color: $white_color;
+        }
+    }
+
+    &.third_light {
+        background-color: $white_color;
+        color: $third_color;
+        border: 1px solid $third_color;
+        
+        @include box_no_shadow;
+        &:hover {
+            background-color: $third_color;
+            color: $white_color;
+        }
+    }
+
+    &.red_light {
+        background-color: $white_color;
+        color: $red_color;
+        border: 1px solid $red_color;
+
+        @include box_no_shadow;
+        &:hover {
+            background-color: $red_color;
+            color: $white_color;
+        }
+    }
+
+    &.dark_light {
+        background-color: $white_color;
+        color: $dark_color;
+        border: 1px solid rgba($dark_color, 25%);
+
+        @include box_no_shadow;
+        &:hover {
+            background-color: $dark_color;
+            color: $white_color;
+        }
+    }
+
+    &.gray {
+        @include border-radius($border-radius);
+        background-color: $white_color;
+        color: $dark_color;
+        border: 1px solid rgba($dark_color, 20%);
+        @include box_no_shadow;
+        &:hover {
+            background-color: $second_color;
+            color: $white_color;
+             img{
+                filter: brightness(12);
+            }
+        }
+    }
+}
+
+.icon_btn {
+    width: 40px;
+    height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    @include border-radius(50%);
+    text-align: center;
+    line-height: 40px;
+    color: $dark_color !important;
+    @include transition(0.3s ease all);
+    background-color: $second-color;
+    border: 0;
+
+    &.icon_btn_dark {
+        background-color: $dark_color;
+        color: $white_color !important;
+        &:hover {
+            background-color: $main_color;
+            color: $second_color !important;
+        }
+    }
+
+    &:hover {
+        @include transition(0.3s ease all);
+        @include transform(translateY(-5px));
+    }
+}

@@ -1,0 +1,139 @@
+@use "../abstracts/mixins" as *;
+@use "../abstracts/variables" as *;
+
+/* Home
+==========================*/
+.statistics {
+    li {
+        @include border_radius($border-radius);
+        border: 1px solid;
+        min-width: 220px;
+        padding: 12px 24px;
+
+        &:first-child {
+            border-color: $main_color;
+        }
+
+        &:nth-child(2) {
+            border-color: $second_color;
+        }
+
+        &:last-child {
+            border-color: $third_color;
+        }
+
+    }
+
+    @include mediaquery(max, desktop) {
+        margin-top: 24px;
+
+        li {
+            min-width: auto;
+
+            padding: 12px 20px;
+        }
+    }
+    @include mediaquery(max, tablet) {
+
+        li {
+            min-width: 100%;
+        }
+    }
+}
+.items_search{
+    @include mediaquery(max, tablet) {
+        flex-direction: column-reverse;
+        align-items: flex-end !important;
+    }
+}
+
+.partc_tabs {
+    border-bottom: 1px solid $main_color;
+    width: calc(100% - 190px);
+    overflow: hidden;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-inline-end: 175px;
+    @include mediaquery(max, mobile) {
+        padding: 0;
+        width: 100% !important;
+    }
+
+    .nav-item {
+        margin: 0;
+        min-width: 280px;
+        @include mediaquery(max, tablet) {
+            min-width: 180px;
+        }
+        .nav-link {
+            padding: 16px 48px;
+            border-bottom: 0;
+            border-color: #dbdfdc;
+            @include border_radius(0);
+            color: $dark_color;
+
+            &.active {
+                border-color: $main_color;
+                color: $main_color;
+            }
+
+            @include mediaquery(max, desktop) {
+                padding: 16px 32px;
+            }
+            @include mediaquery(max, mobile) {
+                padding:  16px 0;
+                font-size: 14px;
+                text-align: center;
+            }
+        }
+
+    }
+}
+.items_search {
+    .actions {
+        position: absolute;
+        inset-inline-end: 0;
+        top: 10px;
+        z-index: 9999;
+        .main_btn::after {
+            display: none;
+        }
+        @include mediaquery(max, mobile) {
+            position: relative;
+            top: 0;
+        }
+    
+    }
+}
+// Sort dropdown (competitions actions)
+.sort_dropdown {
+    .dropdown-toggle::after {
+        display: none;
+    }
+
+    .sort_dropdown__menu {
+        border: 1px solid rgba($second_color, 0.15);
+        padding: 10px 0;
+        min-width: 210px;
+        max-width: 210px;
+        @include border_radius($border-radius);
+        @include box_shadow(0, 18px, 32px, 0.12, rgba(0, 0, 0, 0.12));
+        margin-top: 10px;
+    }
+
+    .sort_dropdown__title {
+        text-align: start;
+    }
+
+    .sort_dropdown__item {
+        padding: 8px 18px;
+        text-align: start;
+        font-size: 14px;
+
+        &:hover,
+        &:focus {
+            background-color: rgba($main_color, 0.08);
+            color: $main_color;
+        }
+    }
+}

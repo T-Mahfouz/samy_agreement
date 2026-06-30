@@ -1,0 +1,275 @@
+@use "../abstracts/mixins" as *;
+@use "../abstracts/variables" as *;
+
+.modal {
+    z-index: 9999999;
+
+    .modal-dialog {
+        width: 98%;
+        max-width: 1250px !important;
+        height: 100%;
+        margin: auto auto 0;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+
+        .close {
+            position: relative;
+            text-shadow: none;
+            text-align: center;
+            opacity: 1;
+            width: 30px;
+            height: 30px;
+            top: auto;
+            inset-inline-start: auto;
+            @include border-radius(50%);
+        }
+    }
+
+
+    .modal-content {
+        border: 0;
+        @include border-radius(24px 24px 0 0);
+        padding: 48px 48px 16px;
+        max-width: 1250px !important;
+
+        .form-control {
+            @include border_radius($border-radius);
+            margin: 0;
+        }
+
+        .date_type {
+            min-width: 140px;
+        }
+
+        @include mediaquery(max, desktop) {
+            padding: 16px;
+        }
+
+        @include mediaquery(max, tablet) {
+            padding: 16px;
+            overflow: hidden;
+            overflow-y: auto;
+            height: 100%;
+            max-height: 80%;
+        }
+        @include mediaquery(max, mobile){
+            .date_group{
+                flex-direction: column;
+                align-items: start !important;
+            }
+        }
+    }
+
+
+
+}
+
+.modal-backdrop {
+    z-index: 99999;
+}
+
+.modal-open {
+    overflow: hidden !important;
+}
+
+/* Tender book payment modal (كراسة الشروط) — centered card */
+.tender_book_modal {
+    .modal-dialog{
+        margin: auto;
+    height: auto;
+    align-items: center;
+    }
+    .modal-content {
+        padding: 32px;
+        @include border-radius(24px);
+        max-width: 740px !important;
+
+    }
+
+
+    &__table-wrap {
+        margin-bottom: 20px;
+    }
+
+    &__field-label {
+        font-weight: $weight_bold;
+    }
+
+    &__box {
+        min-height: 52px;
+        padding: 12px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px dashed rgba($dark_color, 25%);
+        @include border_radius($border-radius);
+        background-color: $white_color;
+    }
+
+    &__upload {
+        cursor: pointer;
+        display: block;
+        min-height: 52px;
+        padding: 12px 16px;
+        border: 1px dashed rgba($dark_color, 25%);
+        @include border_radius($border-radius);
+        background-color: $white_color;
+        margin: 0;
+
+        &:hover {
+            border-color: rgba($main_color, 45%);
+        }
+    }
+
+    &__upload-inner {
+        justify-content: space-between;
+        width: 100%;
+    }
+
+    &__clip {
+        color: rgba($dark_color, 45%);
+    }
+
+    &__submit {
+        min-width: 160px;
+        justify-content: center;
+    }
+
+    &__terms {
+        padding: 20px;
+        background-color: $gray_color;
+        border: 1px solid $border_color;
+        @include border_radius($border-radius);
+    }
+
+    &__terms-text {
+        line-height: 22px;
+        font-size: 14px;
+    }
+
+    &__pledge {
+        cursor: pointer;
+        user-select: none;
+
+        span {
+            color: #8b2942;
+            font-weight: $weight_bold;
+        }
+    }
+
+    &__value-input.form-control {
+        height: 52px;
+        margin-bottom: 0 !important;
+        @include border_radius($border-radius);
+    }
+
+    
+}
+
+/* Forms
+========================*/
+.form-group {
+    margin-bottom: 24px;
+}
+
+label {
+    font-size: 14px;
+    font-weight: $weight_reg;
+    color: $main_color;
+    margin-bottom: 12px;
+}
+
+.form-control {
+    text-align: start !important;
+    width: 100%;
+    color: $dark_color !important;
+    background-color: $white_color;
+    border: 1px solid rgba($dark_color, 20%);
+    margin: 0;
+    padding: 0 16px;
+    line-height: 42px;
+    margin-bottom: 16px;
+    height: 42px;
+    font-size: 14px;
+    outline: 0;
+    font-weight: $weight_reg;
+    @include box_no_shadow;
+    @include border_radius($border-radius);
+
+    &:hover,
+    &:focus {
+        outline: 0;
+        background-color: $white_color;
+        border: 1px solid rgba($dark_color, 20%);
+        @include box_no_shadow;
+    }
+}
+.form-control:disabled:hover, .form-control[readonly]:hover{
+    background-color: #e9ecef;
+}
+
+textarea.form-control {
+    resize: none;
+    min-height: 140px !important;
+    padding: 15px !important;
+    line-height: 25px;
+    
+}
+
+input[type=checkbox],
+input[type=radio] {
+    accent-color: $main_color;
+}
+
+select.form-control {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding-inline-end: 48px;
+    cursor: pointer;
+    overflow: hidden;
+    background-color: $white_color;
+    background-image:
+        url(../../../assets/images/arrow-down.png),
+        linear-gradient(to left, #e7ede9 42px, #e7ede9 42px);
+    background-repeat: no-repeat, no-repeat;
+    background-position: left 16px center, left center;
+    background-size: 10px auto, 42px 100%;
+
+    &::-ms-expand {
+        display: none;
+    }
+}
+
+.login {
+    .form-group {
+        position: relative;
+
+        img {
+            position: absolute;
+            inset-inline-start: 0;
+            bottom: 0;
+            margin: auto;
+            height: 42px;
+            padding: 14px;
+        }
+
+        .form-control {
+            padding-inline-start: 48px;
+
+            &::placeholder {
+                color: $main_color;
+                opacity: 1;
+            }
+        }
+    }
+    
+}
+@include mediaquery(max, mobile) {
+    .inputs_group{
+        flex-direction: column;
+        align-items: start !important;
+        gap: 0px !important;
+    }
+}
