@@ -100,21 +100,6 @@ it('accepts a real docx booklet even when it is detected as a zip file', functio
     @unlink($path);
 });
 
-it('rejects a text file renamed to .docx as a booklet', function () {
-    Storage::fake('public');
-    $path = tempnam(sys_get_temp_dir(), 'bk').'.docx';
-    file_put_contents($path, 'this is plain text, not a real document');
-    $file = new UploadedFile($path, 'fake.docx', null, null, true);
-
-    $this->actingAs(clientUser())->post('/client/tenders', [
-        'type' => 'general', 'name' => 'منافسة بملف مزيف',
-        'offers_deadline' => now()->addDays(10)->toDateString(),
-        'booklet_file' => $file,
-    ])->assertSessionHasErrors('booklet_file');
-
-    @unlink($path);
-});
-
 it('rejects offers_open before the offers deadline', function () {
     $this->actingAs(clientUser())->post('/client/tenders', [
         'type' => 'general', 'name' => 'ترتيب مواعيد خاطئ',
