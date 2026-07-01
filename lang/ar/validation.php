@@ -31,6 +31,7 @@ return [
     'email' => 'يجب أن يكون :attribute بريدًا إلكترونيًا صحيحًا.',
     'ends_with' => 'يجب أن ينتهي :attribute بأحد القيم التالية: :values.',
     'exists' => 'القيمة المحددة لـ :attribute غير موجودة.',
+    'extensions' => 'يجب أن يكون امتداد :attribute من الأنواع التالية: :values.',
     'file' => 'يجب أن يكون :attribute ملفًا.',
     'filled' => 'حقل :attribute مطلوب.',
     'gt' => [

@@ -55,6 +55,15 @@ class BookletController extends Controller
         abort_unless($tender->brochure_file && Storage::disk('public')->exists($tender->brochure_file), 404, 'لم تُرفع كراسة الشروط لهذه المنافسة بعد.');
 
         $ext = pathinfo($tender->brochure_file, PATHINFO_EXTENSION);
+        if (! $ext) {
+            // ملفات قديمة خُزّنت بلا امتداد → استنتج من نوع المحتوى
+            $ext = match (Storage::disk('public')->mimeType($tender->brochure_file)) {
+                'application/pdf' => 'pdf',
+                'application/msword' => 'doc',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/zip' => 'docx',
+                default => '',
+            };
+        }
         $filename = 'كراسة-الشروط-'.$tender->tender_no.($ext ? '.'.$ext : '');
 
         return Storage::disk('public')->download($tender->brochure_file, $filename);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\NormalizesIban;
 use App\Http\Controllers\Controller;
 use App\Models\SystemSetting;
 use Illuminate\Http\RedirectResponse;
@@ -11,6 +12,8 @@ use Inertia\Response;
 
 class SettingController extends Controller
 {
+    use NormalizesIban;
+
     /** مفاتيح الإعدادات المعروفة */
     private const KEYS = [
         'platform_bank_name',
@@ -42,10 +45,12 @@ class SettingController extends Controller
 
     public function update(Request $request): RedirectResponse
     {
+        $this->normalizeIban($request, 'platform_bank_iban');
+
         $data = $request->validate([
             'platform_bank_name' => ['nullable', 'string', 'max:255'],
             'platform_bank_beneficiary' => ['nullable', 'string', 'max:255'],
-            'platform_bank_iban' => ['nullable', 'string', 'regex:/^SA[0-9]{22}$/'],
+            'platform_bank_iban' => ['nullable', 'string', 'regex:/^SA[0-9A-Z]{22}$/'],
             'default_commission_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'contact_phone' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\s()-]+$/'],
             'contact_whatsapp' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\s()-]+$/'],

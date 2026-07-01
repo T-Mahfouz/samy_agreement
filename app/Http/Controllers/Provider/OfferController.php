@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Provider;
 
+use App\Http\Controllers\Concerns\StoresUploads;
 use App\Http\Controllers\Controller;
 use App\Models\Notification;
 use App\Models\Offer;
@@ -12,6 +13,8 @@ use Illuminate\Http\Request;
 
 class OfferController extends Controller
 {
+    use StoresUploads;
+
     /** تقديم عرض على منافسة */
     public function store(Request $request, Tender $tender): RedirectResponse
     {
@@ -29,12 +32,24 @@ class OfferController extends Controller
             return back()->with('error', 'لقد قدّمت عرضًا على هذه المنافسة بالفعل.');
         }
 
+        // docx أصله zip → mimes:docx يفشل على كثير من السيرفرات؛ نتحقق بالامتداد + أنواع محتوى واسعة
+        $offerFileRules = [
+            'required', 'file', 'extensions:pdf,doc,docx,jpg,jpeg,png,webp',
+            'mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip,application/x-zip-compressed,application/x-cfb,image/jpeg,image/png,image/webp',
+            'max:10240',
+        ];
+
         $data = $request->validate([
-            'technical_file' => ['required', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png,webp', 'max:10240'],
-            'financial_file' => ['required', 'file', 'mimes:pdf,doc,docx,jpg,jpeg,png,webp', 'max:10240'],
+            'technical_file' => $offerFileRules,
+            'financial_file' => $offerFileRules,
             'financial_value' => ['required', 'numeric', 'min:0'],
             'declaration_accepted' => ['accepted'],
-        ], [], [
+        ], [
+            'technical_file.extensions' => 'يجب أن يكون ملف العرض الفني من نوع PDF أو Word أو صورة.',
+            'technical_file.mimetypes' => 'يجب أن يكون ملف العرض الفني من نوع PDF أو Word أو صورة.',
+            'financial_file.extensions' => 'يجب أن يكون ملف العرض المالي من نوع PDF أو Word أو صورة.',
+            'financial_file.mimetypes' => 'يجب أن يكون ملف العرض المالي من نوع PDF أو Word أو صورة.',
+        ], [
             'technical_file' => 'ملف العرض الفني',
             'financial_file' => 'ملف العرض المالي',
             'financial_value' => 'قيمة العرض المالي',
@@ -44,8 +59,8 @@ class OfferController extends Controller
         $tender->offers()->create([
             'provider_id' => $provider->id,
             // ملفات العروض سرّية → قرص خاص (تُحمَّل عبر مسار مُصرّح به فقط)
-            'technical_file' => $request->file('technical_file')->store("offers/{$tender->id}", 'local'),
-            'financial_file' => $request->file('financial_file')->store("offers/{$tender->id}", 'local'),
+            'technical_file' => $this->storeUpload($request->file('technical_file'), "offers/{$tender->id}", 'local'),
+            'financial_file' => $this->storeUpload($request->file('financial_file'), "offers/{$tender->id}", 'local'),
             'financial_value' => $data['financial_value'],
             'technical_check' => 'pending',
             'declaration_accepted' => true,
@@ -83,7 +98,7 @@ class OfferController extends Controller
             [
                 'paid_to' => 'client',
                 'amount' => $tender->brochure_price,
-                'receipt_file' => $request->file('receipt_file')->store("receipts/brochure/{$tender->id}", 'public'),
+                'receipt_file' => $this->storeUpload($request->file('receipt_file'), "receipts/brochure/{$tender->id}"),
                 'status' => 'pending',
                 'reviewed_by' => null,
                 'reviewed_at' => null,
@@ -119,7 +134,7 @@ class OfferController extends Controller
                 'tender_id' => $offer->tender_id,
                 'paid_to' => 'platform',
                 'amount' => $amount,
-                'receipt_file' => $request->file('receipt_file')->store("receipts/commission/{$offer->id}", 'public'),
+                'receipt_file' => $this->storeUpload($request->file('receipt_file'), "receipts/commission/{$offer->id}"),
                 'status' => 'pending',
                 'reviewed_by' => null,
                 'reviewed_at' => null,

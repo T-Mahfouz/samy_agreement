@@ -40,7 +40,7 @@ const submit = () => form.put('/client/profile', { preserveScroll: true });
                                     <div class="col-12 col-lg-4"><div class="form-group"><label>البريد الإلكتروني</label><input type="email" class="form-control" :value="email" disabled dir="ltr"></div></div>
                                     <div class="col-12 col-lg-4"><div class="form-group"><label>اسم البنك</label><input type="text" class="form-control" v-model="form.bank_name"><small v-if="form.errors.bank_name" class="red-color d-block">{{ form.errors.bank_name }}</small></div></div>
                                     <div class="col-12 col-lg-4"><div class="form-group"><label>اسم المستفيد</label><input type="text" class="form-control" v-model="form.bank_beneficiary_name"><small v-if="form.errors.bank_beneficiary_name" class="red-color d-block">{{ form.errors.bank_beneficiary_name }}</small></div></div>
-                                    <div class="col-12 col-lg-4"><div class="form-group"><label>رقم الآيبان</label><input type="text" maxlength="24" class="form-control" v-model="form.bank_iban" placeholder="SA..." dir="ltr"><small v-if="form.errors.bank_iban" class="red-color d-block">{{ form.errors.bank_iban }}</small></div></div>
+                                    <div class="col-12 col-lg-4"><div class="form-group"><label>رقم الآيبان</label><input type="text" class="form-control" v-model="form.bank_iban" placeholder="SAxx xxxx xxxx xxxx xxxx xxxx" dir="ltr"><small v-if="form.errors.bank_iban" class="red-color d-block">{{ form.errors.bank_iban }}</small></div></div>
                                 </div>
                             </div>
                             <div class="d-flex justify-content-end">

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Client;
 
+use App\Http\Controllers\Concerns\StoresUploads;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Region;
@@ -14,6 +15,8 @@ use Inertia\Response;
 
 class TenderController extends Controller
 {
+    use StoresUploads;
+
     public function create(): Response
     {
         return Inertia::render('client/CreateTender', $this->formData());
@@ -26,7 +29,7 @@ class TenderController extends Controller
 
         $data = $this->validateData($request);
         $booklet = $request->hasFile('booklet_file')
-            ? $request->file('booklet_file')->store('brochures', 'public')
+            ? $this->storeUpload($request->file('booklet_file'), 'brochures')
             : null;
 
         $tender = Tender::create(array_merge($this->mapFields($data), [
@@ -69,7 +72,7 @@ class TenderController extends Controller
         $fields = $this->mapFields($data);
 
         if ($request->hasFile('booklet_file')) {
-            $fields['brochure_file'] = $request->file('booklet_file')->store('brochures', 'public');
+            $fields['brochure_file'] = $this->storeUpload($request->file('booklet_file'), 'brochures');
         }
 
         $tender->update($fields);
@@ -95,7 +98,8 @@ class TenderController extends Controller
         return $request->validate([
             'type' => ['required', 'in:general,direct_purchase,limited'],
             'name' => ['required', 'string', 'max:255'],
-            'booklet_file' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
+            // docx أصله zip → mimes:docx يفشل على كثير من السيرفرات؛ نتحقق بالامتداد + أنواع محتوى واسعة
+            'booklet_file' => ['nullable', 'file', 'max:10240'],
             'brochure_price' => ['nullable', 'numeric', 'min:0'],
             'contract_duration_months' => ['nullable', 'integer', 'min:1'],
             'insurance_required' => ['boolean'],
@@ -129,6 +133,8 @@ class TenderController extends Controller
             'includes_supply_items' => ['boolean'],
             'activity_description' => ['nullable', 'string'],
         ], [
+            'booklet_file.extensions' => 'يجب أن يكون ملف كراسة الشروط من نوع PDF أو Word (DOC/DOCX).',
+            'booklet_file.mimetypes' => 'يجب أن يكون ملف كراسة الشروط من نوع PDF أو Word (DOC/DOCX).',
             'offers_deadline.after_or_equal' => 'لا يمكن أن يكون آخر موعد لتقديم العروض في الماضي.',
             'questions_deadline.before_or_equal' => 'يجب أن يكون آخر موعد للاستفسارات قبل آخر موعد لتقديم العروض أو يساويه.',
             'questions_start.before_or_equal' => 'يجب أن تكون بداية الاستفسارات قبل آخر موعد لتقديم العروض أو تساويه.',

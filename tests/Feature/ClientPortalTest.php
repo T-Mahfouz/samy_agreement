@@ -5,6 +5,8 @@ use App\Models\ClientProfile;
 use App\Models\Region;
 use App\Models\Tender;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 function clientUser(): User
 {
@@ -74,6 +76,43 @@ it('rejects a non-numeric guarantee value', function () {
         'offers_deadline' => now()->addDays(10)->toDateString(),
         'initial_guarantee_value' => 'نص وليس رقم',
     ])->assertSessionHasErrors('initial_guarantee_value');
+});
+
+it('accepts a real docx booklet even when it is detected as a zip file', function () {
+    Storage::fake('public');
+    $path = tempnam(sys_get_temp_dir(), 'bk').'.docx';
+    $zip = new ZipArchive();
+    $zip->open($path, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+    $zip->addFromString('word/document.xml', '<w:document/>');
+    $zip->close();
+    $file = new UploadedFile($path, 'booklet.docx', null, null, true);
+
+    $this->actingAs(clientUser())->post('/client/tenders', [
+        'type' => 'general', 'name' => 'منافسة بملف docx حقيقي',
+        'offers_deadline' => now()->addDays(10)->toDateString(),
+        'booklet_file' => $file,
+    ])->assertSessionHasNoErrors()->assertRedirect('/client/dashboard');
+
+    // الملف المخزَّن يحتفظ بامتداده الأصلي حتى يُحمَّل بشكل صحيح
+    $tender = Tender::where('name', 'منافسة بملف docx حقيقي')->firstOrFail();
+    expect($tender->brochure_file)->toEndWith('.docx');
+
+    @unlink($path);
+});
+
+it('rejects a text file renamed to .docx as a booklet', function () {
+    Storage::fake('public');
+    $path = tempnam(sys_get_temp_dir(), 'bk').'.docx';
+    file_put_contents($path, 'this is plain text, not a real document');
+    $file = new UploadedFile($path, 'fake.docx', null, null, true);
+
+    $this->actingAs(clientUser())->post('/client/tenders', [
+        'type' => 'general', 'name' => 'منافسة بملف مزيف',
+        'offers_deadline' => now()->addDays(10)->toDateString(),
+        'booklet_file' => $file,
+    ])->assertSessionHasErrors('booklet_file');
+
+    @unlink($path);
 });
 
 it('rejects offers_open before the offers deadline', function () {

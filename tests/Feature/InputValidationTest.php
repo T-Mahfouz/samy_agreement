@@ -77,3 +77,22 @@ it('accepts a valid Saudi IBAN and numeric mobile on client registration', funct
         'email' => 'valid@test.com', 'password' => 'password123', 'password_confirmation' => 'password123',
     ])->assertRedirect('/client/dashboard');
 });
+
+it('accepts an IBAN pasted with spaces and stores it normalized', function () {
+    $this->post('/register', [
+        'role' => 'client', 'facility_name' => 'منشأة',
+        'iban' => 'SA44 2000 0001 2345 6789 1234',
+        'email' => 'spaced@test.com', 'password' => 'password123', 'password_confirmation' => 'password123',
+    ])->assertRedirect('/client/dashboard');
+
+    $user = User::where('email', 'spaced@test.com')->firstOrFail();
+    expect($user->clientProfile->bank_iban)->toBe('SA4420000001234567891234');
+});
+
+it('accepts a Saudi IBAN that contains letters', function () {
+    $this->post('/register', [
+        'role' => 'client', 'facility_name' => 'منشأة',
+        'iban' => 'SA442000000123456789ABCD',
+        'email' => 'alnum@test.com', 'password' => 'password123', 'password_confirmation' => 'password123',
+    ])->assertRedirect('/client/dashboard');
+});

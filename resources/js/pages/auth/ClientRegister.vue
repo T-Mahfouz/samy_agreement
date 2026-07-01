@@ -60,19 +60,38 @@ const submit = () => form.post('/register', { onError: () => { form.password = '
                                             <small v-if="form.errors.mobile" class="red-color d-block">{{ form.errors.mobile }}</small>
                                         </div>
                                     </div>
-                                    <div class="col-12 col-lg-8">
+
+                                    <div class="col-12 col-sm-6 col-md-6 col-lg-2">
                                         <div class="form-group">
-                                            <label for="bank_name"> بيانات الحساب البنكى</label>
-                                            <div class="d-flex gap-2 align-items-center inputs_group">
-                                                <input type="text" class="form-control" id="bank_name" v-model="form.bank_name" placeholder="اسم البنك">
-                                                <input type="text" class="form-control" id="beneficiary_name" v-model="form.beneficiary_name" placeholder="اسم المستفيد">
-                                                <input type="text" maxlength="24" class="form-control" id="iban" v-model="form.iban" placeholder="SA.....................‎" dir="ltr">
-                                            </div>
-                                            <small v-if="form.errors.iban" class="red-color d-block">{{ form.errors.iban }}</small>
+                                            <label for="mobile">اسم البنك</label>
+                                            <input type="text" class="form-control" id="bank_name" v-model="form.bank_name" placeholder="اسم البنك">
                                             <small v-if="form.errors.bank_name" class="red-color d-block">{{ form.errors.bank_name }}</small>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-sm-6 col-md-6 col-lg-2">
+                                        <div class="form-group">
+                                            <label for="mobile">اسم المستفيد</label>
+                                            <input type="text" class="form-control" id="beneficiary_name" v-model="form.beneficiary_name" placeholder="اسم المستفيد">
                                             <small v-if="form.errors.beneficiary_name" class="red-color d-block">{{ form.errors.beneficiary_name }}</small>
                                         </div>
                                     </div>
+
+                                    <div class="col-12 col-sm-6 col-md-8 col-lg-2">
+                                        <div class="form-group">
+                                            <label for="mobile">رقم الآيبان</label>
+                                            <input type="text" class="form-control" id="iban" v-model="form.iban" placeholder="SAxx xxxx xxxx xxxx xxxx xxxx" dir="ltr">
+                                            <small v-if="form.errors.iban" class="red-color d-block">{{ form.errors.iban }}</small>
+                                        </div>
+                                    </div>
+
+                                    <!-- <div class="col-12 col-lg-8">
+                                        <div class="form-group">
+                                            <label for="bank_name"> بيانات الحساب البنكى</label>
+                                            <div class="d-flex gap-2 align-items-center inputs_group">
+                                            </div>
+                                        </div>
+                                    </div> -->
                                 </div>
                             </div>
 

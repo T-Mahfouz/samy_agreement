@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Concerns\NormalizesIban;
+use App\Http\Controllers\Concerns\StoresUploads;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\ClientProfile;
@@ -18,6 +20,9 @@ use Inertia\Response;
 
 class RegisteredUserController extends Controller
 {
+    use NormalizesIban;
+    use StoresUploads;
+
     /** أنواع مستندات المورّد المرفوعة (input name => doc_type) */
     private const DOC_FIELDS = [
         'attach_cr' => 'commercial_register',
@@ -61,12 +66,14 @@ class RegisteredUserController extends Controller
 
     private function storeClient(Request $request): RedirectResponse
     {
+        $this->normalizeIban($request, 'iban');
+
         $data = $request->validate([
             'facility_name' => ['required', 'string', 'max:255'],
             'mobile' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\s()-]+$/'],
             'bank_name' => ['nullable', 'string', 'max:255'],
             'beneficiary_name' => ['nullable', 'string', 'max:255'],
-            'iban' => ['nullable', 'string', 'regex:/^SA[0-9]{22}$/'],
+            'iban' => ['nullable', 'string', 'regex:/^SA[0-9A-Z]{22}$/'],
             'username' => ['nullable', 'string', 'max:255', 'unique:users,username'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
@@ -115,8 +122,8 @@ class RegisteredUserController extends Controller
             'username' => ['nullable', 'string', 'max:255', 'unique:users,username'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'attach_cr' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:5120'],
-            // باقي المستندات اختيارية لكن لازم نفس قيود النوع والحجم لو رُفعت.
+            'attach_cr' => ['required', 'file', 'max:5120'],
+
             ...collect(self::DOC_FIELDS)
                 ->except('attach_cr')
                 ->keys()
@@ -159,7 +166,7 @@ class RegisteredUserController extends Controller
 
         foreach (self::DOC_FIELDS as $field => $docType) {
             if ($request->hasFile($field)) {
-                $path = $request->file($field)->store("provider-docs/{$provider->id}", 'public');
+                $path = $this->storeUpload($request->file($field), "provider-docs/{$provider->id}");
                 $provider->documents()->create([
                     'doc_type' => $docType,
                     'file_path' => $path,
