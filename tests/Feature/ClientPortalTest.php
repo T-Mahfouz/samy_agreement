@@ -56,6 +56,34 @@ it('validates required tender fields', function () {
         ->assertSessionHasErrors(['type', 'name']);
 });
 
+it('requires an offers deadline', function () {
+    $this->actingAs(clientUser())->post('/client/tenders', ['type' => 'general', 'name' => 'بدون موعد'])
+        ->assertSessionHasErrors('offers_deadline');
+});
+
+it('rejects an offers deadline in the past', function () {
+    $this->actingAs(clientUser())->post('/client/tenders', [
+        'type' => 'general', 'name' => 'تاريخ منتهي',
+        'offers_deadline' => now()->subDay()->toDateString(),
+    ])->assertSessionHasErrors('offers_deadline');
+});
+
+it('rejects a non-numeric guarantee value', function () {
+    $this->actingAs(clientUser())->post('/client/tenders', [
+        'type' => 'general', 'name' => 'قيمة نصية',
+        'offers_deadline' => now()->addDays(10)->toDateString(),
+        'initial_guarantee_value' => 'نص وليس رقم',
+    ])->assertSessionHasErrors('initial_guarantee_value');
+});
+
+it('rejects offers_open before the offers deadline', function () {
+    $this->actingAs(clientUser())->post('/client/tenders', [
+        'type' => 'general', 'name' => 'ترتيب مواعيد خاطئ',
+        'offers_deadline' => now()->addDays(10)->toDateString(),
+        'offers_open' => now()->addDays(5)->toDateString(),
+    ])->assertSessionHasErrors('offers_open');
+});
+
 it('lets a client cancel their own tender but not others', function () {
     $user = clientUser();
     $tender = Tender::create([

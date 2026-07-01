@@ -78,7 +78,6 @@ const setStatus = (status: string) => {
     }
 };
 
-const fileUrl = (path: string) => (path.startsWith('http') ? path : `/storage/${path}`);
 </script>
 
 <template>
@@ -139,7 +138,7 @@ const fileUrl = (path: string) => (path.startsWith('http') ? path : `/storage/${
                         <a
                             v-for="d in provider.documents"
                             :key="d.id"
-                            :href="fileUrl(d.file_path)"
+                            :href="`/provider-documents/${d.id}/download`"
                             target="_blank"
                             rel="noopener"
                             class="flex items-center justify-between gap-2 rounded-lg border p-3 text-sm transition-colors hover:bg-accent"

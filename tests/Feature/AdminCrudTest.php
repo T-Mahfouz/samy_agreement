@@ -129,6 +129,12 @@ it('does crud on content pages and enforces unique slug+section', function () {
     expect(ContentPage::find($page->id))->toBeNull();
 });
 
+it('rejects a malformed slug on content pages', function () {
+    $this->actingAs(admin())->post('/admin/content', [
+        'slug' => 'About Us!', 'section_key' => 'intro', 'title' => 'x', 'body' => 'y',
+    ])->assertSessionHasErrors('slug');
+});
+
 it('lists and shows providers, and approving syncs the user account', function () {
     $admin = admin();
 

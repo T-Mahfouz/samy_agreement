@@ -4,6 +4,7 @@ use App\Models\ClientProfile;
 use App\Models\Contract;
 use App\Models\Offer;
 use App\Models\Payment;
+use App\Models\ProviderDocument;
 use App\Models\ProviderProfile;
 use App\Models\Tender;
 use App\Models\User;
@@ -74,9 +75,43 @@ it('lets a client edit their tender', function () {
     $this->actingAs($cu)->get("/client/tenders/{$tender->id}/edit")->assertOk();
     $this->actingAs($cu)->put("/client/tenders/{$tender->id}", [
         'type' => 'limited', 'name' => 'اسم معدّل',
+        'offers_deadline' => now()->addDays(10)->toDateString(),
     ])->assertRedirect('/client/dashboard');
     expect($tender->fresh()->name)->toBe('اسم معدّل');
     expect($tender->fresh()->type)->toBe('limited');
+});
+
+it('serves a payment receipt to the owning provider but blocks another provider', function () {
+    Storage::fake('public');
+    ['pu' => $pu, 'tender' => $tender, 'provider' => $provider] = party();
+    Storage::disk('public')->put('receipts/brochure/r.png', 'img');
+    $pay = Payment::create([
+        'type' => 'brochure_fee', 'tender_id' => $tender->id, 'provider_id' => $provider->id,
+        'paid_to' => 'client', 'amount' => 500, 'status' => 'pending', 'receipt_file' => 'receipts/brochure/r.png',
+    ]);
+
+    $this->actingAs($pu)->get("/payments/{$pay->id}/receipt")->assertOk();
+
+    $other = User::factory()->create(['role' => 'provider']);
+    ProviderProfile::create(['user_id' => $other->id, 'company_name' => 'مورد آخر', 'status' => 'approved']);
+    $this->actingAs($other)->get("/payments/{$pay->id}/receipt")->assertForbidden();
+});
+
+it('serves a provider document to admin but blocks a stranger', function () {
+    Storage::fake('public');
+    ['provider' => $provider] = party();
+    Storage::disk('public')->put('provider-docs/cr.pdf', 'pdf');
+    $doc = ProviderDocument::create([
+        'provider_id' => $provider->id, 'doc_type' => 'commercial_register',
+        'file_path' => 'provider-docs/cr.pdf', 'uploaded_at' => now(),
+    ]);
+
+    $admin = User::factory()->create(['role' => 'admin']);
+    $this->actingAs($admin)->get("/provider-documents/{$doc->id}/download")->assertOk();
+
+    $stranger = User::factory()->create(['role' => 'client']);
+    ClientProfile::create(['user_id' => $stranger->id, 'company_name' => 'غريب']);
+    $this->actingAs($stranger)->get("/provider-documents/{$doc->id}/download")->assertForbidden();
 });
 
 it('lets client and provider update their profiles', function () {

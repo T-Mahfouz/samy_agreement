@@ -8,7 +8,6 @@ interface Paged<T> { data: T[]; links: { url: string | null; label: string; acti
 const props = defineProps<{ tender: { id: number; tender_no: string; name: string }; requests: Paged<Req> }>();
 
 const img = (n: string) => `/slice/assets/images/${n}`;
-const fileUrl = (p: string | null) => (p ? `/storage/${p}` : '#');
 
 const decisions: Record<number, string> = {};
 props.requests.data.forEach((r) => { decisions[r.id] = r.status; });
@@ -50,7 +49,7 @@ const submit = () => form.put(`/client/tenders/${props.tender.id}/brochure-reque
                                             <tr v-for="r in requests.data" :key="r.id">
                                                 <td class="dark-color big-xl-cell">{{ r.provider }}</td>
                                                 <td class="dark-color ltr">{{ Number(r.amount).toLocaleString('en', { minimumFractionDigits: 2 }) }}</td>
-                                                <td><a :href="fileUrl(r.receipt_file)" target="_blank" class="second-color"><u>مشاهدة الإيصال</u></a></td>
+                                                <td><a v-if="r.receipt_file" :href="`/payments/${r.id}/receipt`" target="_blank" class="second-color"><u>مشاهدة الإيصال</u></a><span v-else class="dark-color">—</span></td>
                                                 <td class="dark-color big-xl-cell">
                                                     <div class="d-inline-flex align-items-center gap-2">
                                                         <label class="offer_exam__choice d-inline-flex align-items-center gap-2 mb-0">

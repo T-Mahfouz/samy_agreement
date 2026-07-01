@@ -24,11 +24,14 @@ class ProfileController extends Controller
     {
         $data = $request->validate([
             'company_name' => ['required', 'string', 'max:255'],
-            'mobile' => ['nullable', 'string', 'max:30'],
+            'mobile' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\s()-]+$/'],
             'bank_name' => ['nullable', 'string', 'max:255'],
             'bank_beneficiary_name' => ['nullable', 'string', 'max:255'],
-            'bank_iban' => ['nullable', 'string', 'max:50'],
-        ], [], ['company_name' => 'اسم المنشأة']);
+            'bank_iban' => ['nullable', 'string', 'regex:/^SA[0-9]{22}$/'],
+        ], [
+            'mobile.regex' => 'رقم الجوال يجب أن يحتوي على أرقام فقط.',
+            'bank_iban.regex' => 'رقم الآيبان غير صحيح (يبدأ بـ SA ويتكوّن من 24 خانة).',
+        ], ['company_name' => 'اسم المنشأة', 'mobile' => 'رقم الجوال', 'bank_iban' => 'رقم الآيبان']);
 
         $request->user()->clientProfile?->update($data);
         $request->user()->update(['name' => $data['company_name'], 'phone' => $data['mobile'] ?? null]);

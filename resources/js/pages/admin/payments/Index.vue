@@ -69,7 +69,6 @@ const setStatus = (p: Payment, status: string) => {
     }
 };
 
-const fileUrl = (path: string) => (path.startsWith('http') ? path : `/storage/${path}`);
 </script>
 
 <template>
@@ -129,7 +128,7 @@ const fileUrl = (path: string) => (path.startsWith('http') ? path : `/storage/${
                                 <td class="p-3 font-medium">{{ Number(p.amount).toLocaleString('ar-EG') }} ر.س</td>
                                 <td class="p-3 text-muted-foreground">{{ paidToLabels[p.paid_to] }}</td>
                                 <td class="p-3">
-                                    <a v-if="p.receipt_file" :href="fileUrl(p.receipt_file)" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-primary hover:underline">
+                                    <a v-if="p.receipt_file" :href="`/payments/${p.id}/receipt`" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-primary hover:underline">
                                         <FileText class="size-4" /> عرض
                                     </a>
                                     <span v-else class="text-muted-foreground">—</span>

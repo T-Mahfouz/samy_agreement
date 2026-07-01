@@ -26,13 +26,16 @@ class ProfileController extends Controller
     {
         $data = $request->validate([
             'company_name' => ['required', 'string', 'max:255'],
-            'commercial_register_no' => ['nullable', 'string', 'max:100'],
+            'commercial_register_no' => ['nullable', 'string', 'max:20', 'regex:/^[0-9]+$/'],
             'cr_type' => ['nullable', 'string', 'max:255'],
-            'mobile' => ['nullable', 'string', 'max:30'],
+            'mobile' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\s()-]+$/'],
             'main_category_id' => ['nullable', 'exists:categories,id'],
             'sub_category_id' => ['nullable', 'exists:categories,id'],
             'activity_description' => ['nullable', 'string'],
-        ], [], ['company_name' => 'اسم المنشأة']);
+        ], [
+            'mobile.regex' => 'رقم الجوال يجب أن يحتوي على أرقام فقط.',
+            'commercial_register_no.regex' => 'رقم السجل التجاري يجب أن يحتوي على أرقام فقط.',
+        ], ['company_name' => 'اسم المنشأة', 'mobile' => 'رقم الجوال', 'commercial_register_no' => 'رقم السجل التجاري']);
 
         $request->user()->providerProfile?->update($data);
         $request->user()->update(['name' => $data['company_name'], 'phone' => $data['mobile'] ?? null]);

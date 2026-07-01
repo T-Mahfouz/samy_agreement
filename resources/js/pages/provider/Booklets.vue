@@ -12,7 +12,6 @@ interface Paged<T> { data: T[]; links: { url: string | null; label: string; acti
 defineProps<{ requests: Paged<Req> }>();
 
 const img = (n: string) => `/slice/assets/images/${n}`;
-const fileUrl = (p: string | null) => (p ? `/storage/${p}` : '#');
 const statusLabels: Record<string, string> = { pending: 'قيد المراجعة', paid: 'تم الاعتماد', rejected: 'مرفوض' };
 </script>
 
@@ -51,7 +50,7 @@ const statusLabels: Record<string, string> = { pending: 'قيد المراجعة
                                             <td class="main-color big-cell"><a :href="`/tenders/${r.tender_id}`" class="tender_details__link main-color">{{ r.tender_name }}</a></td>
                                             <td class="dark-color">{{ r.client ?? '—' }}</td>
                                             <td class="dark-color ltr">{{ Number(r.amount).toLocaleString('en', { minimumFractionDigits: 2 }) }}</td>
-                                            <td><a :href="fileUrl(r.receipt_file)" target="_blank" class="second-color"><u>مشاهدة الإيصال</u></a></td>
+                                            <td><a v-if="r.receipt_file" :href="`/payments/${r.id}/receipt`" target="_blank" class="second-color"><u>مشاهدة الإيصال</u></a><span v-else class="dark-color">—</span></td>
                                             <td>
                                                 <a v-if="r.status === 'paid' && r.has_file" :href="`/provider/tenders/${r.tender_id}/brochure/download`" class="main_btn second fs-14 pe_16 pst_16" role="button">تحميل كراسة الشروط</a>
                                                 <span v-else-if="r.status === 'paid' && !r.has_file" class="fs-14 dark-color">تم الاعتماد — كراسة الشروط غير مرفوعة بعد</span>

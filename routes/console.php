@@ -10,3 +10,8 @@ Artisan::command('inspire', function () {
 
 // إعادة حساب حالة المنافسات كل ساعة
 Schedule::command('tenders:recompute-status')->hourly();
+
+// تفريغ طابور البريد كل دقيقة (يعتمد على كرون schedule:run الموجود على الاستضافة)
+Schedule::command('queue:work --stop-when-empty --max-time=50')
+    ->everyMinute()
+    ->withoutOverlapping();

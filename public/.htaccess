@@ -1,9 +1,18 @@
+# حماية الملفات الحساسة إذا كانت مجلدات التطبيق داخل جذر الموقع (نشر inside-out).
+# آمنة أيضًا في النشر الطبيعي (هذه المسارات لا تكون موجودة تحت جذر الموقع).
+<FilesMatch "^\.env|^\.env\..*|composer\.(json|lock)|package(-lock)?\.json|artisan|phpunit\.xml|vite\.config\.(js|ts)|\.git">
+    Require all denied
+</FilesMatch>
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
     </IfModule>
 
     RewriteEngine On
+
+    # امنع الوصول المباشر لمجلدات التطبيق (تعمل فقط لو كانت داخل جذر الموقع)
+    RewriteRule ^(app|bootstrap|config|database|resources|routes|storage|tests|vendor|node_modules)/ - [F,L]
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .

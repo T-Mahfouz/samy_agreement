@@ -26,7 +26,7 @@ class DemoTenderSeeder extends Seeder
         );
         $client = ClientProfile::firstOrCreate(
             ['user_id' => $clientUser->id],
-            ['company_name' => 'شركة مساس المحدودة', 'mobile' => '0512345678', 'bank_name' => 'بنك الراجحي', 'bank_beneficiary_name' => 'شركة مساس المحدودة', 'bank_iban' => 'SA415367890789']
+            ['company_name' => 'شركة مساس المحدودة', 'mobile' => '0512345678', 'bank_name' => 'بنك الراجحي', 'bank_beneficiary_name' => 'شركة مساس المحدودة', 'bank_iban' => 'SA4420000001234567891234']
         );
 
         // مورّد تجريبي (لعرض بعض العروض)

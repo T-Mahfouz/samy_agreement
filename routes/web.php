@@ -32,6 +32,10 @@ Route::middleware('auth')->group(function () {
     Route::get('offers/{offer}/files/{type}', [\App\Http\Controllers\OfferFileController::class, 'download'])
         ->whereIn('type', ['technical', 'financial'])
         ->name('offers.file.download');
+
+    // إيصالات السداد ومستندات المورّد (بدل رابط storage الرمزي)
+    Route::get('payments/{payment}/receipt', [\App\Http\Controllers\FileDownloadController::class, 'paymentReceipt'])->name('payments.receipt');
+    Route::get('provider-documents/{document}/download', [\App\Http\Controllers\FileDownloadController::class, 'providerDocument'])->name('provider.documents.download');
 });
 
 // بوابة العميل

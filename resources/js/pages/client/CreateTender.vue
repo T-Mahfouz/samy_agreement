@@ -13,6 +13,14 @@ const isEditing = !!props.tender;
 const t = props.tender ?? {};
 const v = (key: string, def: any = '') => (t[key] ?? def);
 
+// تاريخ اليوم (YYYY-MM-DD) لمنع اختيار تواريخ ماضية في حقول التاريخ
+const today = (() => {
+    const d = new Date();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${m}-${day}`;
+})();
+
 const form = useForm<Record<string, any>>({
     type: v('type', 'general'),
     name: v('name'),
@@ -119,7 +127,8 @@ const submit = () => {
                                             <div class="col-12 col-sm-6 col-md-6 col-lg-4">
                                                 <div class="form-group">
                                                     <label>قيمة كراسة الشروط</label>
-                                                    <input type="text" class="form-control" v-model="form.brochure_price" placeholder="القيمة" inputmode="decimal">
+                                                    <input type="number" min="0" step="0.01" class="form-control" v-model="form.brochure_price" placeholder="القيمة" inputmode="decimal">
+                                                    <small v-if="form.errors.brochure_price" class="red-color d-block">{{ form.errors.brochure_price }}</small>
                                                 </div>
                                             </div>
                                             <div class="col-12 col-sm-6 col-md-6 col-lg-2">
@@ -157,7 +166,8 @@ const submit = () => {
                                             <div class="col-12 col-sm-6 col-md-6 col-lg-4">
                                                 <div class="form-group">
                                                     <label>قيمة الضمان الإبتدائي</label>
-                                                    <input type="text" class="form-control" v-model="form.initial_guarantee_value" placeholder="القيمة">
+                                                    <input type="number" min="0" step="0.01" class="form-control" v-model="form.initial_guarantee_value" placeholder="القيمة" inputmode="decimal">
+                                                    <small v-if="form.errors.initial_guarantee_value" class="red-color d-block">{{ form.errors.initial_guarantee_value }}</small>
                                                 </div>
                                             </div>
                                             <div class="col-12 col-sm-6 col-md-6 col-lg-4">
@@ -178,7 +188,8 @@ const submit = () => {
                                             <div class="col-12 col-sm-6 col-md-6 col-lg-4">
                                                 <div class="form-group">
                                                     <label>قيمة الضمان النهائي</label>
-                                                    <input type="text" class="form-control" v-model="form.final_guarantee_value" placeholder="القيمة">
+                                                    <input type="number" min="0" step="0.01" class="form-control" v-model="form.final_guarantee_value" placeholder="القيمة" inputmode="decimal">
+                                                    <small v-if="form.errors.final_guarantee_value" class="red-color d-block">{{ form.errors.final_guarantee_value }}</small>
                                                 </div>
                                             </div>
                                             <div class="col-12 col-sm-6 col-md-6 col-lg-4">
@@ -205,17 +216,17 @@ const submit = () => {
                                     العناوين والمواعيد للمنافسة
                                 </h3>
                                 <div class="row">
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">آخر موعد لإستلام الإستفسارات ( ميلادي )</label><input type="date" class="form-control" v-model="form.questions_deadline"></div></div>
+                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">آخر موعد لإستلام الإستفسارات ( ميلادي )</label><input type="date" class="form-control" :min="today" :max="form.offers_deadline || undefined" v-model="form.questions_deadline"><small v-if="form.errors.questions_deadline" class="red-color d-block">{{ form.errors.questions_deadline }}</small></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">آخر موعد لإستلام الإستفسارات ( هجري )</label><input type="text" class="form-control" v-model="form.questions_deadline_hijri" placeholder="هجري"></div></div>
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">آخر موعد لتقديم العروض ( ميلادي )</label><input type="date" class="form-control" v-model="form.offers_deadline"></div></div>
+                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">آخر موعد لتقديم العروض ( ميلادي ) <span class="red-color">*</span></label><input type="date" class="form-control" :min="today" v-model="form.offers_deadline"><small v-if="form.errors.offers_deadline" class="red-color d-block">{{ form.errors.offers_deadline }}</small></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">آخر موعد لتقديم العروض ( هجري )</label><input type="text" class="form-control" v-model="form.offers_deadline_hijri" placeholder="هجري"></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">وقت آخر موعد لتقديم العروض</label><input type="time" class="form-control" v-model="form.offers_deadline_time"></div></div>
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">تاريخ فتح العروض ( ميلادي )</label><input type="date" class="form-control" v-model="form.offers_open"></div></div>
+                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">تاريخ فتح العروض ( ميلادي )</label><input type="date" class="form-control" :min="form.offers_deadline || today" v-model="form.offers_open"><small v-if="form.errors.offers_open" class="red-color d-block">{{ form.errors.offers_open }}</small></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">تاريخ فتح العروض ( هجري )</label><input type="text" class="form-control" v-model="form.offers_open_hijri" placeholder="هجري"></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">وقت فتح العروض</label><input type="time" class="form-control" v-model="form.offers_open_time"></div></div>
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">التاريخ المتوقع للترسية ( ميلادي )</label><input type="date" class="form-control" v-model="form.expected_award_date"></div></div>
+                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">التاريخ المتوقع للترسية ( ميلادي )</label><input type="date" class="form-control" :min="form.offers_deadline || today" v-model="form.expected_award_date"><small v-if="form.errors.expected_award_date" class="red-color d-block">{{ form.errors.expected_award_date }}</small></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">التاريخ المتوقع للترسية ( هجري )</label><input type="text" class="form-control" v-model="form.expected_award_date_hijri" placeholder="هجري"></div></div>
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">بداية إرسال الاسئلة والإستفسارات ( ميلادي )</label><input type="date" class="form-control" v-model="form.questions_start"></div></div>
+                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">بداية إرسال الاسئلة والإستفسارات ( ميلادي )</label><input type="date" class="form-control" :min="today" :max="form.offers_deadline || undefined" v-model="form.questions_start"><small v-if="form.errors.questions_start" class="red-color d-block">{{ form.errors.questions_start }}</small></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">بداية إرسال الاسئلة والإستفسارات ( هجري )</label><input type="text" class="form-control" v-model="form.questions_start_hijri" placeholder="هجري"></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label>فترة التوقف</label><input type="number" class="form-control" v-model="form.standstill_period_days" min="0"></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label>اقصى مدة للاجابة على الاستفسارات</label><input type="number" class="form-control" v-model="form.max_answer_duration_days" min="0"></div></div>

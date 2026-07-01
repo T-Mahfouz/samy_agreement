@@ -296,7 +296,7 @@ const groupedLocations = computed(() => {
                                 مجال التصنيف وموقع التنفيذ والتقديم
                             </h3>
                             <div class="d-flex align-items-center gap-4">
-                                <a href="#" class="main_btn d-flex align-items-center gap-2" role="button" @click.prevent="bookOpen = true">
+                                <a v-if="offersOpen" href="#" class="main_btn d-flex align-items-center gap-2" role="button" @click.prevent="bookOpen = true">
                                     <img :src="img('details-pdf.png')" alt=""> كراسة الشروط
                                 </a>
                                 <a v-if="offersOpen" href="#" class="main_btn second d-flex align-items-center gap-2" role="button" @click.prevent="proposalOpen = true">
@@ -434,8 +434,8 @@ const groupedLocations = computed(() => {
                                     </div>
                                     <div class="col-lg-4 col-md-12 col-sm-12 mb_24 mb-md-0">
                                         <label class="d-flex align-items-center gap-2 fs-16 main-color mb_12"><img :src="img('details-arrow.png')" alt="" class="m-0">قيمة العرض المالي</label>
-                                        <input type="text" class="form-control tender_book_modal__value-input" placeholder="أدخل القيمة" inputmode="decimal" :disabled="!isProvider" v-model="proposalForm.financial_value">
-                                        <small v-if="proposalForm.errors.financial_value" class="red-color">{{ proposalForm.errors.financial_value }}</small>
+                                        <input type="number" min="0" step="0.01" class="form-control tender_book_modal__value-input" placeholder="أدخل القيمة" inputmode="decimal" :disabled="!isProvider" v-model="proposalForm.financial_value">
+                                        <small v-if="proposalForm.errors.financial_value" class="red-color d-block">{{ proposalForm.errors.financial_value }}</small>
                                     </div>
                                 </div>
                                 <div class="mt_24">

@@ -63,14 +63,17 @@ class RegisteredUserController extends Controller
     {
         $data = $request->validate([
             'facility_name' => ['required', 'string', 'max:255'],
-            'mobile' => ['nullable', 'string', 'max:30'],
+            'mobile' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\s()-]+$/'],
             'bank_name' => ['nullable', 'string', 'max:255'],
             'beneficiary_name' => ['nullable', 'string', 'max:255'],
-            'iban' => ['nullable', 'string', 'max:50'],
+            'iban' => ['nullable', 'string', 'regex:/^SA[0-9]{22}$/'],
             'username' => ['nullable', 'string', 'max:255', 'unique:users,username'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+        ], [
+            'mobile.regex' => 'رقم الجوال يجب أن يحتوي على أرقام فقط.',
+            'iban.regex' => 'رقم الآيبان غير صحيح (يبدأ بـ SA ويتكوّن من 24 خانة).',
+        ], ['facility_name' => 'اسم المنشأة', 'iban' => 'رقم الآيبان', 'mobile' => 'رقم الجوال']);
 
         $user = User::create([
             'name' => $data['facility_name'],
@@ -102,10 +105,10 @@ class RegisteredUserController extends Controller
     {
         $data = $request->validate([
             'facility_name' => ['required', 'string', 'max:255'],
-            'cr_number' => ['nullable', 'string', 'max:100'],
-            'cr_issue_date' => ['nullable', 'date'],
+            'cr_number' => ['nullable', 'string', 'max:20', 'regex:/^[0-9]+$/'],
+            'cr_issue_date' => ['nullable', 'date', 'before_or_equal:today'],
             'cr_type' => ['nullable', 'string', 'max:255'],
-            'mobile' => ['nullable', 'string', 'max:30'],
+            'mobile' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\s()-]+$/'],
             'main_sector' => ['nullable', 'exists:categories,id'],
             'sub_activity' => ['nullable', 'exists:categories,id'],
             'activity_description' => ['nullable', 'string'],
@@ -119,6 +122,15 @@ class RegisteredUserController extends Controller
                 ->keys()
                 ->mapWithKeys(fn ($field) => [$field => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:5120']])
                 ->all(),
+        ], [
+            'mobile.regex' => 'رقم الجوال يجب أن يحتوي على أرقام فقط.',
+            'cr_number.regex' => 'رقم السجل التجاري يجب أن يحتوي على أرقام فقط.',
+            'cr_issue_date.before_or_equal' => 'لا يمكن أن يكون تاريخ إصدار السجل التجاري في المستقبل.',
+        ], [
+            'facility_name' => 'اسم المنشأة',
+            'cr_number' => 'رقم السجل التجاري',
+            'cr_issue_date' => 'تاريخ إصدار السجل التجاري',
+            'mobile' => 'رقم الجوال',
         ]);
 
         $user = User::create([

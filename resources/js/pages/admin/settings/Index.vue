@@ -79,12 +79,12 @@ const submit = () => form.put('/admin/settings', { preserveScroll: true });
                     <CardContent class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <div class="grid gap-2">
                             <Label for="phone">رقم الجوال</Label>
-                            <Input id="phone" v-model="form.contact_phone" dir="ltr" />
+                            <Input id="phone" type="tel" inputmode="numeric" v-model="form.contact_phone" dir="ltr" />
                             <InputError :message="form.errors.contact_phone" />
                         </div>
                         <div class="grid gap-2">
                             <Label for="whatsapp">رقم الواتساب</Label>
-                            <Input id="whatsapp" v-model="form.contact_whatsapp" dir="ltr" />
+                            <Input id="whatsapp" type="tel" inputmode="numeric" v-model="form.contact_whatsapp" dir="ltr" />
                             <InputError :message="form.errors.contact_whatsapp" />
                         </div>
                         <div class="grid gap-2">

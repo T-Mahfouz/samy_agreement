@@ -48,8 +48,8 @@ class ContentPageController extends Controller
     private function validateData(Request $request, ?ContentPage $content = null): array
     {
         return $request->validate([
-            'slug' => ['required', 'string', 'max:100'],
-            'section_key' => ['nullable', 'string', 'max:100',
+            'slug' => ['required', 'string', 'max:100', 'regex:/^[a-z0-9-]+$/'],
+            'section_key' => ['nullable', 'string', 'max:100', 'regex:/^[a-z0-9_-]+$/',
                 Rule::unique('content_pages')->where(fn ($q) => $q->where('slug', $request->input('slug')))
                     ->ignore($content?->id),
             ],
@@ -57,6 +57,8 @@ class ContentPageController extends Controller
             'body' => ['nullable', 'string'],
         ], [
             'section_key.unique' => 'هذا القسم موجود بالفعل لنفس الصفحة.',
+            'slug.regex' => 'الصفحة يجب أن تحتوي على حروف إنجليزية صغيرة وأرقام وشرطات (-) فقط.',
+            'section_key.regex' => 'مفتاح القسم يجب أن يحتوي على حروف إنجليزية صغيرة وأرقام و(_ -) فقط.',
         ], [
             'slug' => 'الصفحة',
             'section_key' => 'مفتاح القسم',

@@ -30,7 +30,7 @@ class CoreDataSeeder extends Seeder
         $settings = [
             'platform_bank_name' => 'بنك الراجحي',
             'platform_bank_beneficiary' => 'مؤسسة اتفاق',
-            'platform_bank_iban' => 'SA415367890789',
+            'platform_bank_iban' => 'SA0380000000608010167519',
             'default_commission_rate' => '1',
             // قيم افتراضية صحيحة الصياغة — يعدّلها الأدمن من: لوحة التحكم ← الإعدادات ← بيانات التواصل
             'contact_phone' => '0112005500',

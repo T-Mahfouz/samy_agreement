@@ -69,6 +69,11 @@ class OfferController extends Controller
         $provider = $request->user()->providerProfile;
         abort_unless($provider, 403);
 
+        // لا فائدة من طلب كراسة الشروط بعد انتهاء آخر موعد لتقديم العروض
+        if (! $tender->offersOpen()) {
+            return back()->with('error', 'انتهت فترة طلب كراسة الشروط لهذه المنافسة.');
+        }
+
         $request->validate([
             'receipt_file' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:5120'],
         ], [], ['receipt_file' => 'إيصال التحويل']);

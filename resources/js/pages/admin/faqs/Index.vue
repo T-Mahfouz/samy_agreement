@@ -158,6 +158,7 @@ const destroy = (f: Faq) => {
                         <div class="grid gap-2">
                             <Label for="sort_order">الترتيب</Label>
                             <Input id="sort_order" type="number" min="0" v-model="form.sort_order" />
+                            <InputError :message="form.errors.sort_order" />
                         </div>
                         <div class="flex items-end gap-2">
                             <input id="is_active" type="checkbox" v-model="form.is_active" class="size-4" />

@@ -70,6 +70,7 @@ it('creates a tender with multiple locations', function () {
 
     $this->actingAs($u)->post('/client/tenders', [
         'type' => 'general', 'name' => 'منافسة متعددة المواقع',
+        'offers_deadline' => now()->addDays(10)->toDateString(),
         'locations' => [
             ['region_id' => $r1->id, 'city_id' => $c1->id],
             ['region_id' => $r2->id, 'city_id' => $c2->id],

@@ -14,7 +14,7 @@ it('registers a client and redirects to the client dashboard', function () {
         'mobile' => '0500000000',
         'bank_name' => 'الراجحي',
         'beneficiary_name' => 'شركة مساس',
-        'iban' => 'SA00',
+        'iban' => 'SA4420000001234567891234',
         'email' => 'newclient@test.com',
         'password' => 'password123',
         'password_confirmation' => 'password123',

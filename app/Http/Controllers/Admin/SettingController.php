@@ -45,12 +45,16 @@ class SettingController extends Controller
         $data = $request->validate([
             'platform_bank_name' => ['nullable', 'string', 'max:255'],
             'platform_bank_beneficiary' => ['nullable', 'string', 'max:255'],
-            'platform_bank_iban' => ['nullable', 'string', 'max:50'],
+            'platform_bank_iban' => ['nullable', 'string', 'regex:/^SA[0-9]{22}$/'],
             'default_commission_rate' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            'contact_phone' => ['nullable', 'string', 'max:50'],
-            'contact_whatsapp' => ['nullable', 'string', 'max:50'],
+            'contact_phone' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\s()-]+$/'],
+            'contact_whatsapp' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\s()-]+$/'],
             'contact_email' => ['nullable', 'email', 'max:255'],
             'contact_support_email' => ['nullable', 'email', 'max:255'],
+        ], [
+            'platform_bank_iban.regex' => 'رقم الآيبان غير صحيح (يبدأ بـ SA ويتكوّن من 24 خانة).',
+            'contact_phone.regex' => 'رقم الجوال يجب أن يحتوي على أرقام فقط.',
+            'contact_whatsapp.regex' => 'رقم الواتساب يجب أن يحتوي على أرقام فقط.',
         ]);
 
         foreach ($data as $key => $value) {

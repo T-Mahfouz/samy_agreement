@@ -103,6 +103,19 @@ it('lets a provider upload a brochure-fee receipt', function () {
     expect((float) $pay->amount)->toBe(500.0);
 });
 
+it('blocks a brochure-fee request after the deadline has passed', function () {
+    Storage::fake('public');
+    $user = providerUser('approved');
+    $tender = aTender();
+    $tender->update(['offers_deadline' => now()->subDay()->format('Y-m-d'), 'offers_deadline_time' => '12:00:00']);
+
+    $this->actingAs($user)->post("/provider/tenders/{$tender->id}/brochure-payment", [
+        'receipt_file' => UploadedFile::fake()->create('r.pdf', 50, 'application/pdf'),
+    ])->assertSessionHas('error');
+
+    expect(Payment::where('type', 'brochure_fee')->where('tender_id', $tender->id)->count())->toBe(0);
+});
+
 it('lets a provider upload a commission receipt for an awarded offer', function () {
     Storage::fake('public');
     $user = providerUser('approved');

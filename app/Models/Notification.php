@@ -2,7 +2,10 @@
 
 namespace App\Models;
 
+use App\Mail\SystemNotificationMail;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class Notification extends Model
 {
@@ -27,6 +30,24 @@ class Notification extends Model
             'body' => $body,
             'link' => $link,
         ]);
+
+        // إرسال بريد بنفس محتوى الإشعار — يجب ألا يُعطّل إنشاء الإشعار أبدًا
+        try {
+            $user = User::find($userId);
+            if ($user && $user->email) {
+                Mail::to($user->email)->queue(new SystemNotificationMail(
+                    recipientName: $user->name,
+                    titleText: $title,
+                    bodyText: $body,
+                    relativeLink: $link,
+                ));
+            }
+        } catch (\Throwable $e) {
+            Log::warning('SystemNotificationMail dispatch failed', [
+                'user_id' => $userId,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     /** إشعار لكل الأدمن */

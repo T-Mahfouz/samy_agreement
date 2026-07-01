@@ -9,6 +9,12 @@ const props = defineProps<{ categories: Category[] }>();
 
 const img = (n: string) => `/slice/assets/images/${n}`;
 
+// تاريخ اليوم لمنع اختيار تاريخ إصدار سجل تجاري في المستقبل
+const today = (() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+})();
+
 const docFields = [
     { name: 'attach_cr', label: 'السجل التجاري', required: true },
     { name: 'attach_zakat', label: 'شهادة الزكاة' },
@@ -90,13 +96,15 @@ const submit = () => form.post('/register', {
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6">
                                         <div class="form-group">
                                             <label for="cr_number">رقم السجل التجاري</label>
-                                            <input type="text" class="form-control" id="cr_number" v-model="form.cr_number" placeholder="رقم السجل التجاري">
+                                            <input type="text" inputmode="numeric" class="form-control" id="cr_number" v-model="form.cr_number" placeholder="رقم السجل التجاري">
+                                            <small v-if="form.errors.cr_number" class="red-color d-block">{{ form.errors.cr_number }}</small>
                                         </div>
                                     </div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6">
                                         <div class="form-group">
                                             <label class="d-flex align-items-center gap-2 mb_12" for="cr_issue_date">تاريخ إصدار السجل التجاري</label>
-                                            <input type="date" class="form-control" id="cr_issue_date" v-model="form.cr_issue_date">
+                                            <input type="date" :max="today" class="form-control" id="cr_issue_date" v-model="form.cr_issue_date">
+                                            <small v-if="form.errors.cr_issue_date" class="red-color d-block">{{ form.errors.cr_issue_date }}</small>
                                         </div>
                                     </div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6">
@@ -108,7 +116,8 @@ const submit = () => form.post('/register', {
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6">
                                         <div class="form-group">
                                             <label for="mobile">رقم الجوال</label>
-                                            <input type="tel" class="form-control" id="mobile" v-model="form.mobile" placeholder="رقم الجوال" dir="rtl">
+                                            <input type="tel" inputmode="numeric" class="form-control" id="mobile" v-model="form.mobile" placeholder="05xxxxxxxx" dir="ltr">
+                                            <small v-if="form.errors.mobile" class="red-color d-block">{{ form.errors.mobile }}</small>
                                         </div>
                                     </div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6">

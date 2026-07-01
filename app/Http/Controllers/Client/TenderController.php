@@ -89,12 +89,15 @@ class TenderController extends Controller
 
     private function validateData(Request $request): array
     {
+        // اليوم بتوقيت الرياض (التطبيق يعمل بـ UTC) لمنع التواريخ المنتهية
+        $today = now('Asia/Riyadh')->toDateString();
+
         return $request->validate([
             'type' => ['required', 'in:general,direct_purchase,limited'],
             'name' => ['required', 'string', 'max:255'],
             'booklet_file' => ['nullable', 'file', 'mimes:pdf,doc,docx', 'max:10240'],
             'brochure_price' => ['nullable', 'numeric', 'min:0'],
-            'contract_duration_months' => ['nullable', 'integer', 'min:0'],
+            'contract_duration_months' => ['nullable', 'integer', 'min:1'],
             'insurance_required' => ['boolean'],
             'initial_guarantee_required' => ['boolean'],
             'initial_guarantee_value' => ['nullable', 'numeric', 'min:0'],
@@ -103,17 +106,18 @@ class TenderController extends Controller
             'final_guarantee_value' => ['nullable', 'numeric', 'min:0'],
             'final_guarantee_address' => ['nullable', 'string', 'max:255'],
             'purpose' => ['nullable', 'string'],
-            'questions_start' => ['nullable', 'date'],
+            // المواعيد: يجب ألا تكون في الماضي وأن تكون مرتبة منطقيًا
+            'questions_start' => ['nullable', 'date', 'after_or_equal:'.$today, 'before_or_equal:offers_deadline'],
             'questions_start_hijri' => ['nullable', 'string', 'max:20'],
-            'questions_deadline' => ['nullable', 'date'],
+            'questions_deadline' => ['nullable', 'date', 'after_or_equal:'.$today, 'before_or_equal:offers_deadline'],
             'questions_deadline_hijri' => ['nullable', 'string', 'max:20'],
-            'offers_deadline' => ['nullable', 'date'],
+            'offers_deadline' => ['required', 'date', 'after_or_equal:'.$today],
             'offers_deadline_hijri' => ['nullable', 'string', 'max:20'],
             'offers_deadline_time' => ['nullable'],
-            'offers_open' => ['nullable', 'date'],
+            'offers_open' => ['nullable', 'date', 'after_or_equal:offers_deadline'],
             'offers_open_hijri' => ['nullable', 'string', 'max:20'],
             'offers_open_time' => ['nullable'],
-            'expected_award_date' => ['nullable', 'date'],
+            'expected_award_date' => ['nullable', 'date', 'after_or_equal:offers_deadline'],
             'expected_award_date_hijri' => ['nullable', 'string', 'max:20'],
             'standstill_period_days' => ['nullable', 'integer', 'min:0'],
             'max_answer_duration_days' => ['nullable', 'integer', 'min:0'],
@@ -124,7 +128,27 @@ class TenderController extends Controller
             'locations.*.city_id' => ['required_with:locations', 'exists:cities,id'],
             'includes_supply_items' => ['boolean'],
             'activity_description' => ['nullable', 'string'],
-        ], [], ['type' => 'نوع المنافسة', 'name' => 'اسم المنافسة']);
+        ], [
+            'offers_deadline.after_or_equal' => 'لا يمكن أن يكون آخر موعد لتقديم العروض في الماضي.',
+            'questions_deadline.before_or_equal' => 'يجب أن يكون آخر موعد للاستفسارات قبل آخر موعد لتقديم العروض أو يساويه.',
+            'questions_start.before_or_equal' => 'يجب أن تكون بداية الاستفسارات قبل آخر موعد لتقديم العروض أو تساويه.',
+            'offers_open.after_or_equal' => 'يجب أن يكون تاريخ فتح العروض بعد آخر موعد لتقديم العروض أو يساويه.',
+            'expected_award_date.after_or_equal' => 'يجب أن يكون التاريخ المتوقع للترسية بعد آخر موعد لتقديم العروض أو يساويه.',
+        ], [
+            'type' => 'نوع المنافسة',
+            'name' => 'اسم المنافسة',
+            'brochure_price' => 'قيمة كراسة الشروط',
+            'initial_guarantee_value' => 'قيمة الضمان الإبتدائي',
+            'final_guarantee_value' => 'قيمة الضمان النهائي',
+            'contract_duration_months' => 'مدة العقد',
+            'standstill_period_days' => 'فترة التوقف',
+            'max_answer_duration_days' => 'أقصى مدة للإجابة على الاستفسارات',
+            'questions_start' => 'بداية إرسال الاستفسارات',
+            'questions_deadline' => 'آخر موعد لاستلام الاستفسارات',
+            'offers_deadline' => 'آخر موعد لتقديم العروض',
+            'offers_open' => 'تاريخ فتح العروض',
+            'expected_award_date' => 'التاريخ المتوقع للترسية',
+        ]);
     }
 
     private function mapFields(array $data): array
