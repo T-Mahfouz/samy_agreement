@@ -6,6 +6,11 @@
 
         <title inertia>{{ config('app.name', 'Agreement') }}</title>
 
+        {{-- أيقونة الموقع (favicon) — شعار منصة اتفاق --}}
+        <link rel="icon" type="image/png" href="/slice/assets/images/favicon.png">
+        <link rel="shortcut icon" type="image/png" href="/slice/assets/images/favicon.png">
+        <link rel="apple-touch-icon" href="/slice/assets/images/favicon.png">
+
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 
