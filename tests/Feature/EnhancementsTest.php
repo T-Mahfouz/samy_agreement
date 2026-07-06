@@ -8,6 +8,8 @@ use App\Models\ProviderDocument;
 use App\Models\ProviderProfile;
 use App\Models\Tender;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 function party(): array
@@ -51,7 +53,6 @@ it('client approves a brochure-fee request and notifies the provider', function 
     $this->actingAs($cu)->put("/client/tenders/{$tender->id}/brochure-requests", ['decisions' => [$pay->id => 'paid']])->assertRedirect();
     expect($pay->fresh()->status)->toBe('paid');
 
-    // المورّد يصله إشعار بالاعتماد
     expect(\App\Models\Notification::where('user_id', $pu->id)->where('is_read', false)->count())->toBeGreaterThan(0);
 });
 
@@ -61,7 +62,6 @@ it('gates brochure download on a paid payment', function () {
     Storage::disk('public')->put('brochures/x.pdf', 'data');
     $tender->update(['brochure_file' => 'brochures/x.pdf']);
 
-    // no payment yet -> forbidden
     $this->actingAs($pu)->get("/provider/tenders/{$tender->id}/brochure/download")->assertForbidden();
 
     Payment::create(['type' => 'brochure_fee', 'tender_id' => $tender->id, 'provider_id' => $provider->id, 'paid_to' => 'client', 'amount' => 500, 'status' => 'paid']);
@@ -114,14 +114,59 @@ it('serves a provider document to admin but blocks a stranger', function () {
     $this->actingAs($stranger)->get("/provider-documents/{$doc->id}/download")->assertForbidden();
 });
 
-it('lets client and provider update their profiles', function () {
-    ['cu' => $cu, 'pu' => $pu] = party();
+it('lets a client edit every field like registration (incl. username/email/password)', function () {
+    ['cu' => $cu] = party();
 
     $this->actingAs($cu)->get('/client/profile')->assertOk();
-    $this->actingAs($cu)->put('/client/profile', ['company_name' => 'عميل جديد', 'mobile' => '0500'])->assertRedirect();
+    $this->actingAs($cu)->put('/client/profile', [
+        'company_name' => 'عميل جديد',
+        'mobile' => '0500000000',
+        'bank_name' => 'الأهلي',
+        'bank_beneficiary_name' => 'عميل جديد',
+        'bank_iban' => 'SA44 2000 0001 2345 6789 1234',
+        'username' => 'client_new',
+        'email' => 'client_new@test.com',
+        'password' => 'newpass123',
+        'password_confirmation' => 'newpass123',
+    ])->assertRedirect();
+
+    $cu->refresh();
     expect($cu->clientProfile->fresh()->company_name)->toBe('عميل جديد');
+    expect($cu->clientProfile->fresh()->bank_iban)->toBe('SA4420000001234567891234');
+    expect($cu->name)->toBe('عميل جديد');
+    expect($cu->username)->toBe('client_new');
+    expect($cu->email)->toBe('client_new@test.com');
+    expect(Hash::check('newpass123', $cu->password))->toBeTrue();
+});
+
+it('lets a provider edit every field like registration and replace a document', function () {
+    Storage::fake('public');
+    ['pu' => $pu, 'provider' => $provider] = party();
 
     $this->actingAs($pu)->get('/provider/profile')->assertOk();
-    $this->actingAs($pu)->put('/provider/profile', ['company_name' => 'مورد جديد'])->assertRedirect();
-    expect($pu->providerProfile->fresh()->company_name)->toBe('مورد جديد');
+    $this->actingAs($pu)->put('/provider/profile', [
+        'company_name' => 'مورد جديد',
+        'commercial_register_no' => '1234567890',
+        'cr_type' => 'مؤسسة',
+        'mobile' => '0511111111',
+        'email' => $pu->email,
+        'username' => 'provider_new',
+        'attach_cr' => UploadedFile::fake()->create('cr.pdf', 100, 'application/pdf'),
+    ])->assertRedirect();
+
+    $pu->refresh();
+    expect($provider->fresh()->company_name)->toBe('مورد جديد');
+    expect($provider->fresh()->commercial_register_no)->toBe('1234567890');
+    expect($pu->username)->toBe('provider_new');
+    expect($provider->documents()->where('doc_type', 'commercial_register')->count())->toBe(1);
+});
+
+it('rejects a profile email that belongs to another user', function () {
+    ['cu' => $cu] = party();
+    $other = User::factory()->create(['role' => 'client', 'email' => 'taken@test.com']);
+
+    $this->actingAs($cu)->put('/client/profile', [
+        'company_name' => 'عميل',
+        'email' => 'taken@test.com',
+    ])->assertSessionHasErrors('email');
 });

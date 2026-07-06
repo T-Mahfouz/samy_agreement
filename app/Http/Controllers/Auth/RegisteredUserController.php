@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Concerns\HandlesProviderDocuments;
 use App\Http\Controllers\Concerns\NormalizesIban;
-use App\Http\Controllers\Concerns\StoresUploads;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\ClientProfile;
@@ -20,27 +20,8 @@ use Inertia\Response;
 
 class RegisteredUserController extends Controller
 {
+    use HandlesProviderDocuments;
     use NormalizesIban;
-    use StoresUploads;
-
-    /** أنواع مستندات المورّد المرفوعة (input name => doc_type) */
-    private const DOC_FIELDS = [
-        'attach_cr' => 'commercial_register',
-        'attach_zakat' => 'zakat_cert',
-        'attach_tax' => 'tax_cert',
-        'attach_sector_class' => 'sector_classification',
-        'attach_social_insurance' => 'social_insurance',
-        'attach_saudization' => 'saudization_cert',
-        'attach_investment_license' => 'investment_license',
-        'attach_municipal_license' => 'municipality_license',
-        'attach_chamber' => 'chamber_membership',
-        'attach_contractors_auth' => 'contractors_authority_cert',
-        'attach_sme' => 'sme_authority_cert',
-        'attach_other_licenses' => 'other_licenses',
-        'attach_auth_letter' => 'authorized_signatory_letter',
-        'attach_auth_id' => 'authorized_signatory_id',
-        'attach_manager_id' => 'manager_id',
-    ];
 
     public function create(Request $request): Response
     {
@@ -73,13 +54,12 @@ class RegisteredUserController extends Controller
             'mobile' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\s()-]+$/'],
             'bank_name' => ['nullable', 'string', 'max:255'],
             'beneficiary_name' => ['nullable', 'string', 'max:255'],
-            'iban' => ['nullable', 'string', 'regex:/^SA[0-9A-Z]{22}$/'],
+            'iban' => ['nullable', 'string', 'max:50'],
             'username' => ['nullable', 'string', 'max:255', 'unique:users,username'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ], [
             'mobile.regex' => 'رقم الجوال يجب أن يحتوي على أرقام فقط.',
-            'iban.regex' => 'رقم الآيبان غير صحيح (يبدأ بـ SA ويتكوّن من 24 خانة).',
         ], ['facility_name' => 'اسم المنشأة', 'iban' => 'رقم الآيبان', 'mobile' => 'رقم الجوال']);
 
         $user = User::create([
@@ -122,13 +102,8 @@ class RegisteredUserController extends Controller
             'username' => ['nullable', 'string', 'max:255', 'unique:users,username'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'attach_cr' => ['required', 'file', 'max:5120'],
 
-            ...collect(self::DOC_FIELDS)
-                ->except('attach_cr')
-                ->keys()
-                ->mapWithKeys(fn ($field) => [$field => ['nullable', 'file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:5120']])
-                ->all(),
+            ...$this->providerDocumentRules(requireCr: true),
         ], [
             'mobile.regex' => 'رقم الجوال يجب أن يحتوي على أرقام فقط.',
             'cr_number.regex' => 'رقم السجل التجاري يجب أن يحتوي على أرقام فقط.',
@@ -145,7 +120,7 @@ class RegisteredUserController extends Controller
             'username' => $data['username'] ?? null,
             'role' => 'provider',
             'phone' => $data['mobile'] ?? null,
-            'status' => 'pending', // بانتظار اعتماد الأدمن
+            'status' => 'pending',
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'email_verified_at' => now(),
@@ -164,16 +139,7 @@ class RegisteredUserController extends Controller
             'status' => 'pending',
         ]);
 
-        foreach (self::DOC_FIELDS as $field => $docType) {
-            if ($request->hasFile($field)) {
-                $path = $this->storeUpload($request->file($field), "provider-docs/{$provider->id}");
-                $provider->documents()->create([
-                    'doc_type' => $docType,
-                    'file_path' => $path,
-                    'uploaded_at' => now(),
-                ]);
-            }
-        }
+        $this->syncProviderDocuments($request, $provider);
 
         event(new Registered($user));
         Auth::login($user);

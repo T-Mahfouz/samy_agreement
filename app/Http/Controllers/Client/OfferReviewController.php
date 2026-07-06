@@ -46,7 +46,6 @@ class OfferReviewController extends Controller
         $offers = $tender->offers()->get();
         $checks = $data['checks'] ?? [];
 
-        // حفظ نتيجة الفحص الفني لكل عرض
         foreach ($offers as $offer) {
             $offer->technical_check = $checks[$offer->id] ?? $offer->technical_check;
             $offer->save();
@@ -92,7 +91,6 @@ class OfferReviewController extends Controller
             return redirect('/client/dashboard')->with('success', 'تمت الترسية وإرسال العقد بنجاح.');
         }
 
-        // حفظ الفحص فقط (بدون ترسية) — تنتقل المنافسة لمرحلة فحص العروض
         if ($tender->status === 'active') {
             $tender->update(['status' => 'examination']);
         }

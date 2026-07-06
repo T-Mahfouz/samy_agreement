@@ -32,10 +32,19 @@ const contractStatusLabels: Record<string, string> = { awaiting_signature: 'با
 
 const tab = ref<'active' | 'awarded'>('active');
 
-const region = (t: Tender) => t.locations?.[0]?.region?.name ?? '—';
-const city = (t: Tender) => t.locations?.[0]?.city?.name ?? '—';
+const uniq = (arr: (string | undefined | null)[]) => [...new Set(arr.filter(Boolean))] as string[];
+const region = (t: Tender) => { const n = uniq((t.locations ?? []).map((l) => l.region?.name)); return n.length ? n.join('، ') : '—'; };
+const city = (t: Tender) => { const n = uniq((t.locations ?? []).map((l) => l.city?.name)); return n.length ? n.join('، ') : '—'; };
+
+const offersEnded = (t: Tender) => {
+    if (t.status === 'cancelled') return false;
+    if (!t.offers_deadline) return false;
+    const time = t.offers_deadline_time ? t.offers_deadline_time.slice(0, 5) : '23:59';
+    return new Date(`${t.offers_deadline}T${time}:00`).getTime() <= Date.now();
+};
 const price = (v: string) => (Number(v) > 0 ? `${Number(v).toLocaleString('en')} ريال` : 'مجانية');
-const duration = (m: number | null) => (m ? `${m} شهر` : '—');
+const durationLabels: Record<number, string> = { 3: '3 شهور', 6: '6 شهور', 12: '1 سنة', 24: '2 سنة', 36: '3 سنة', 48: '4 سنة', 60: '5 سنة' };
+const duration = (m: number | null) => (m ? (durationLabels[m] ?? `${m} شهر`) : '—');
 const remaining = (date: string | null) => {
     if (!date) return '—';
     const d = Math.ceil((new Date(date).getTime() - Date.now()) / 86400000);
@@ -55,7 +64,6 @@ const cancelTender = (t: Tender) => {
         <section class="tender_details">
             <div class="container">
                 <div class="row">
-                    <!-- Welcome + stats -->
                     <div class="col-12 d-flex align-items-end justify-content-between flex-wrap mb_32 position-relative">
                         <div class="d-flex align-items-center gap-2 flex-column">
                             <h3 class="fs-16 dark-color d-inline-flex flex-column gap-2 mb_16">
@@ -88,7 +96,6 @@ const cancelTender = (t: Tender) => {
                         </Link>
                     </div>
 
-                    <!-- Tabs -->
                     <div class="col-12 d-flex align-items-end justify-content-between gap-4 flex-wrap items_search">
                         <ul class="nav nav-tabs partc_tabs w-100" role="tablist">
                             <li class="nav-item" role="presentation">
@@ -102,7 +109,6 @@ const cancelTender = (t: Tender) => {
 
                     <div class="col-12">
                         <div class="tab-content mt_32">
-                            <!-- Active -->
                             <div v-show="tab === 'active'">
                                 <p v-if="activeTenders.data.length === 0" class="border_box p_24 white_bc text-center dark-color">لا توجد منافسات نشطة</p>
                                 <div v-for="t in activeTenders.data" :key="t.id" class="border_box p_24 white_bc mb_24">
@@ -142,9 +148,10 @@ const cancelTender = (t: Tender) => {
                                                 <td class="text-center">
                                                     <div class="d-flex flex-column align-items-center gap-2">
                                                         <span class="third-color">{{ t.offers_count }} عرض مقدم</span>
-                                                        <Link :href="`/client/tenders/${t.id}/offers`" class="main_btn second shadow d-inline-flex align-items-center gap-2 w-124 fs-14 pe_8 pst_8">
+                                                        <Link v-if="offersEnded(t)" :href="`/client/tenders/${t.id}/offers`" class="main_btn second shadow d-inline-flex align-items-center gap-2 w-124 fs-14 pe_8 pst_8">
                                                             <img :src="img('file.png')" alt="" class="m-0"> فحص العروض
                                                         </Link>
+                                                        <span v-else class="fs-14 dark-color text-center">يُتاح فحص العروض بعد انتهاء موعد التقديم</span>
                                                     </div>
                                                 </td>
                                             </tr></tbody>
@@ -170,7 +177,6 @@ const cancelTender = (t: Tender) => {
                                 <SlicePagination :links="activeTenders.links" />
                             </div>
 
-                            <!-- Awarded -->
                             <div v-show="tab === 'awarded'">
                                 <p v-if="awardedTenders.data.length === 0" class="border_box p_24 white_bc text-center dark-color">لا توجد منافسات تم ترسيتها</p>
                                 <div v-for="t in awardedTenders.data" :key="t.id" class="border_box p_24 white_bc mb_24">

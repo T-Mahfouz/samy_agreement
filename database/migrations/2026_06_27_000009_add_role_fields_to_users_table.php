@@ -8,7 +8,6 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // إضافة حقول الدور والحالة للمستخدمين
         Schema::table('users', function (Blueprint $table) {
             $table->string('username')->nullable()->unique()->after('name');
             $table->enum('role', ['admin', 'client', 'provider'])->default('client')->after('username')->index();

@@ -55,7 +55,7 @@ class BrochureRequestController extends Controller
                 ->first();
 
             if (! $payment || $payment->status === $status) {
-                continue; // لا تغيير → لا إشعار مكرّر
+                continue;
             }
 
             $payment->update([
@@ -64,7 +64,6 @@ class BrochureRequestController extends Controller
                 'reviewed_at' => now(),
             ]);
 
-            // إشعار المورّد بقرار العميل
             if (in_array($status, ['paid', 'rejected'], true) && $payment->provider?->user_id) {
                 $approved = $status === 'paid';
                 Notification::notify(

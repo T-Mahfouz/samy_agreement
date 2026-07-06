@@ -10,7 +10,6 @@ defineProps<{
 
 const img = (n: string) => `/slice/assets/images/${n}`;
 
-// style.css يقفل التمرير على body؛ نفتحه هنا حتى يعمل التمرير على الشاشات الصغيرة
 onMounted(() => {
     document.body.style.overflowY = 'auto';
 });
@@ -38,7 +37,6 @@ const submit = () => {
     <FlashToast />
 
     <main class="auth_split">
-        <!-- لوحة النموذج (تظهر يمينًا في RTL) -->
         <section class="auth_split__form">
             <div class="auth_split__form-inner">
                 <Link href="/" class="auth_split__home d-inline-flex align-items-center gap-2 mb_24">
@@ -108,7 +106,6 @@ const submit = () => {
             </div>
         </section>
 
-        <!-- لوحة الهوية (تظهر يسارًا في RTL) -->
         <aside class="auth_split__brand">
             <div class="auth_split__brand-inner">
                 <div class="auth_split__logo">
@@ -144,7 +141,6 @@ const submit = () => {
     font-family: inherit;
 }
 
-/* ---------- لوحة النموذج ---------- */
 .auth_split__form {
     flex: 1 1 54%;
     display: flex;
@@ -222,7 +218,6 @@ const submit = () => {
     padding: 0 16px;
 }
 
-/* ---------- لوحة الهوية ---------- */
 .auth_split__brand {
     flex: 1 1 46%;
     position: relative;
@@ -315,7 +310,6 @@ const submit = () => {
     flex-shrink: 0;
 }
 
-/* ---------- استجابة الشاشات ---------- */
 @media (max-width: 991px) {
     .auth_split {
         flex-direction: column-reverse;

@@ -29,7 +29,6 @@ interface Category { id: number; name: string; parent_id: number | null }
 const props = defineProps<{
     tenders: { data: Tender[]; links: { url: string | null; label: string; active: boolean }[]; total: number };
     filters: Record<string, string>;
-    lockedCategoryId: number | null;
     categories: Category[];
     regions: { id: number; name: string }[];
     stats: { active: number; awarded: number; offers: number };
@@ -38,22 +37,40 @@ const props = defineProps<{
 const img = (n: string) => `/slice/assets/images/${n}`;
 const typeLabels: Record<string, string> = { general: 'منافسة عامة', direct_purchase: 'شراء مباشر', limited: 'محدودة' };
 
+const hijri = (date: string | null) => {
+    if (!date) return '';
+    try {
+        return new Intl.DateTimeFormat('ar-SA-u-ca-islamic-nu-latn', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(date));
+    } catch {
+        return '';
+    }
+};
+const publishTitle = (date: string | null) => {
+    if (!date) return '';
+    const h = hijri(date);
+    return h ? `${date} — ${h} هـ` : date;
+};
+
 const form = reactive({
-    q: props.filters.q ?? '',
     category_id: props.filters.category_id ?? '',
     subcategory_id: props.filters.subcategory_id ?? '',
-    region_id: props.filters.region_id ?? '',
+    reference_no: props.filters.reference_no ?? '',
+    tender_no: props.filters.tender_no ?? '',
+    name: props.filters.name ?? '',
     type: props.filters.type ?? '',
     status: props.filters.status ?? '',
+    region_id: props.filters.region_id ?? '',
     price: props.filters.price ?? '',
+    published: props.filters.published ?? '',
+    deadline_from: props.filters.deadline_from ?? '',
+    deadline_to: props.filters.deadline_to ?? '',
     sort: props.filters.sort ?? '',
 });
 
-const rootCategories = computed(() => {
-    const roots = props.categories.filter((c) => c.parent_id === null);
-    // المورّد المرتبط بقطاع يرى تبويب قطاعه فقط
-    return props.lockedCategoryId ? roots.filter((c) => c.id === props.lockedCategoryId) : roots;
-});
+const calendarType = ref<'gregorian' | 'hijri'>('gregorian');
+const hijriCaption = (d: string) => (d ? `${hijri(d)} هـ` : '');
+
+const rootCategories = computed(() => props.categories.filter((c) => c.parent_id === null));
 const subCategories = computed(() => props.categories.filter((c) => String(c.parent_id) === String(form.category_id)));
 
 const apply = () => {
@@ -63,15 +80,25 @@ const apply = () => {
 };
 const setSort = (val: string) => { form.sort = val; sortOpen.value = false; apply(); };
 
-// تابات التصنيفات (القطاعات الرئيسية)
+const resetFilters = () => {
+    const firstCat = rootCategories.value[0]?.id;
+    Object.assign(form, {
+        category_id: firstCat ? String(firstCat) : '',
+        subcategory_id: '', reference_no: '', tender_no: '', name: '',
+        type: '', status: '', region_id: '', price: '', published: '',
+        deadline_from: '', deadline_to: '', sort: '',
+    });
+    calendarType.value = 'gregorian';
+    apply();
+};
+
 const isActiveCat = (id: number) => String(form.category_id) === String(id);
 const selectCategory = (id: number) => {
-    form.category_id = isActiveCat(id) ? '' : String(id);
+    form.category_id = String(id);
     form.subcategory_id = '';
     apply();
 };
 
-// Filter modal + sort dropdown state
 const filterOpen = ref(false);
 const sortOpen = ref(false);
 const sortRef = ref<HTMLElement | null>(null);
@@ -79,8 +106,11 @@ onClickOutside(sortRef, () => (sortOpen.value = false));
 
 const sortOptions = [
     { val: '', label: 'تاريخ الإنشاء تنازليا' },
-    { val: 'oldest', label: 'تاريخ الإنشاء تصاعديا' },
-    { val: 'deadline', label: 'تاريخ تقديم العروض تصاعديا' },
+    { val: 'created_asc', label: 'تاريخ الإنشاء تصاعديا' },
+    { val: 'open_desc', label: 'تاريخ فتح العروض تنازليا' },
+    { val: 'open_asc', label: 'تاريخ فتح العروض تصاعديا' },
+    { val: 'deadline_desc', label: 'تاريخ تقديم العروض تنازليا' },
+    { val: 'deadline_asc', label: 'تاريخ تقديم العروض تصاعديا' },
 ];
 
 const remaining = (date: string | null) => {
@@ -106,7 +136,6 @@ const progress = (t: Tender) => {
         <section>
             <div class="container">
                 <div class="row">
-                    <!-- Title + statistics -->
                     <div class="col-12 d-flex align-items-center justify-content-between flex-wrap">
                         <h3 class="fs-32 main-color fw-bold d-inline-flex align-items-center gap-4">
                             <div class="img_box main_bc d-flex align-items-center justify-content-center">
@@ -121,7 +150,6 @@ const progress = (t: Tender) => {
                         </ul>
                     </div>
 
-                    <!-- Category tabs + Search/sort actions -->
                     <div class="col-12 mt_32 d-flex align-items-center justify-content-between gap-8 items_search position-relative">
                         <ul class="nav nav-tabs partc_tabs" role="tablist">
                             <li class="nav-item" role="presentation" v-for="cat in rootCategories" :key="cat.id">
@@ -154,7 +182,6 @@ const progress = (t: Tender) => {
                         </div>
                     </div>
 
-                    <!-- Cards -->
                     <div class="col-12">
                         <div class="row">
                             <div v-for="t in tenders.data" :key="t.id" class="col-lg-6">
@@ -173,7 +200,7 @@ const progress = (t: Tender) => {
                                         </div>
                                         <div class="title d-flex align-items-center gap-4">
                                             <div class="img_box publish-date-tooltip d-flex align-items-center justify-content-center"
-                                                :title="`${t.published_at ?? ''}`" tabindex="0">
+                                                :title="publishTitle(t.published_at)" tabindex="0">
                                                 <img :src="img('calendar-black.png')" alt="تاريخ نشر المنافسة">
                                             </div>
                                             <div class="d-flex flex-column gap-2">
@@ -242,7 +269,6 @@ const progress = (t: Tender) => {
                                 لا توجد منافسات مطابقة لبحثك
                             </div>
 
-                            <!-- Pagination -->
                             <div v-if="tenders.links.length > 3" class="col-12 d-flex justify-content-end mt_48">
                                 <nav class="ag-pagination d-flex align-items-center" aria-label="Pagination">
                                     <template v-for="(link, i) in tenders.links" :key="i">
@@ -259,12 +285,12 @@ const progress = (t: Tender) => {
             </div>
         </section>
 
-        <!-- Filter Modal -->
         <teleport to="body">
             <div v-if="filterOpen" class="modal-backdrop fade show"
                 style="position:fixed; inset:0; background-color:rgba(0,0,0,.5); z-index:99999;" @click="filterOpen = false"></div>
             <div class="modal fade" :class="{ show: filterOpen }"
-                :style="{ display: filterOpen ? 'block' : 'none', position: 'fixed', inset: '0', zIndex: 9999999 }" tabindex="-1" role="dialog">
+                :style="{ display: filterOpen ? 'block' : 'none', position: 'fixed', inset: '0', zIndex: 9999999 }" tabindex="-1" role="dialog"
+                @click.self="filterOpen = false">
                 <div class="modal-dialog modal-dialog-centered filter_modal__dialog" role="document">
                     <div class="modal-content filter_modal">
                         <div class="d-flex align-items-center justify-content-end">
@@ -272,7 +298,7 @@ const progress = (t: Tender) => {
                                 <img :src="img('close.png')" alt="">
                             </button>
                         </div>
-                        <div class="modal-body">
+                        <div class="modal-body" style="max-height:78vh; overflow-y:auto;">
                             <div class="row">
                                 <div class="col-12 col-lg-3 col-md-6 col-sm-6">
                                     <div class="form-group">
@@ -294,8 +320,20 @@ const progress = (t: Tender) => {
                                 </div>
                                 <div class="col-12 col-lg-3 col-md-6 col-sm-6">
                                     <div class="form-group">
-                                        <label>اسم / رقم المنافسة</label>
-                                        <input class="form-control" type="text" v-model="form.q" placeholder="" @keyup.enter="apply">
+                                        <label>الرقم المرجعي للمنافسة</label>
+                                        <input class="form-control" type="text" v-model="form.reference_no" placeholder="" @keyup.enter="apply">
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-3 col-md-6 col-sm-6">
+                                    <div class="form-group">
+                                        <label>رقم المنافسة</label>
+                                        <input class="form-control" type="text" v-model="form.tender_no" placeholder="" @keyup.enter="apply">
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-3 col-md-6 col-sm-6">
+                                    <div class="form-group">
+                                        <label>اسم المنافسة</label>
+                                        <input class="form-control" type="text" v-model="form.name" placeholder="" @keyup.enter="apply">
                                     </div>
                                 </div>
                                 <div class="col-12 col-lg-3 col-md-6 col-sm-6">
@@ -303,9 +341,9 @@ const progress = (t: Tender) => {
                                         <label>نوع المنافسة</label>
                                         <select class="form-control" v-model="form.type">
                                             <option value="">اختر النوع</option>
-                                            <option value="general">عامة</option>
+                                            <option value="general">منافسة عامة</option>
                                             <option value="limited">محدودة</option>
-                                            <option value="direct_purchase">تعاقد مباشر</option>
+                                            <option value="direct_purchase">شراء مباشر</option>
                                         </select>
                                     </div>
                                 </div>
@@ -314,7 +352,7 @@ const progress = (t: Tender) => {
                                         <label>حالة المنافسة</label>
                                         <select class="form-control" v-model="form.status">
                                             <option value="">اختر الحالة</option>
-                                            <option value="active">نشطة</option>
+                                            <option value="active">نشطة ( تقديم العروض )</option>
                                             <option value="examination">فحص العروض</option>
                                             <option value="awarding">مرحلة الترسية</option>
                                             <option value="awarded">تم ترسيتها</option>
@@ -336,13 +374,58 @@ const progress = (t: Tender) => {
                                         <select class="form-control" v-model="form.price">
                                             <option value="">اختر القيمة</option>
                                             <option value="free">مجانية</option>
-                                            <option value="lt_1000">أقل من 1000</option>
-                                            <option value="1000_10000">1000 - 10000</option>
-                                            <option value="gt_10000">أكثر من 10000</option>
+                                            <option value="1_1000">1 - 1000</option>
+                                            <option value="1001_10000">1001 - 10000</option>
+                                            <option value="10001_20000">10001 - 20000</option>
+                                            <option value="20001_40000">20001 - 40000</option>
+                                            <option value="40001_50000">40001 - 50000</option>
+                                            <option value="gt_50000">أكثر من 50000</option>
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-12 justify-content-end d-flex">
+                                <div class="col-12 col-lg-3 col-md-6 col-sm-6">
+                                    <div class="form-group">
+                                        <label>تاريخ نشر المنافسة</label>
+                                        <select class="form-control" v-model="form.published">
+                                            <option value="">اختر المدة</option>
+                                            <option value="2d">منذ يومين</option>
+                                            <option value="week">منذ أسبوع</option>
+                                            <option value="month">منذ شهر</option>
+                                            <option value="3months">منذ ٣ شهور</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-6">
+                                    <div class="form-group">
+                                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb_12">
+                                            <label class="m-0">آخر موعد لتقديم العروض</label>
+                                            <div class="date_type d-flex align-items-center gap-2" role="radiogroup" aria-label="نوع التقويم">
+                                                <input type="radio" id="calendarTypeGregorian" value="gregorian" v-model="calendarType">
+                                                <label class="m-0" for="calendarTypeGregorian">ميلادي</label>
+                                                <input type="radio" id="calendarTypeHijri" value="hijri" v-model="calendarType">
+                                                <label class="m-0" for="calendarTypeHijri">هجري</label>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2 date_group">
+                                            <label class="m-0 flex-shrink-0">من</label>
+                                            <input type="date" class="form-control" aria-label="من" v-model="form.deadline_from" style="flex:1; min-width:0;">
+                                            <label class="m-0 flex-shrink-0">إلى</label>
+                                            <input type="date" class="form-control" aria-label="إلى" v-model="form.deadline_to" style="flex:1; min-width:0;">
+                                        </div>
+                                        <div v-if="calendarType === 'hijri' && (form.deadline_from || form.deadline_to)" class="fs-14 dark-color mt_8">
+                                            <span v-if="form.deadline_from">من: {{ hijriCaption(form.deadline_from) }}</span>
+                                            <span v-if="form.deadline_to" class="ms_16">إلى: {{ hijriCaption(form.deadline_to) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 d-flex align-items-center justify-content-end gap-2 flex-wrap">
+                                    <button type="button" class="main_btn dark_light d-flex align-items-center justify-content-center gap-2" @click="resetFilters">
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true" class="m-0">
+                                            <path d="M3 12a9 9 0 1 0 3-6.7L3 8m0-5v5h5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        مسح الكل
+                                    </button>
                                     <button type="button" class="main_btn d-flex align-items-center justify-content-center gap-2" @click="apply">
                                         <img :src="img('search.png')" alt="" class="m-0">
                                         بحث

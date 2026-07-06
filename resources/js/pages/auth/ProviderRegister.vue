@@ -9,7 +9,6 @@ const props = defineProps<{ categories: Category[] }>();
 
 const img = (n: string) => `/slice/assets/images/${n}`;
 
-// تاريخ اليوم لمنع اختيار تاريخ إصدار سجل تجاري في المستقبل
 const today = (() => {
     const d = new Date();
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -77,7 +76,6 @@ const submit = () => form.post('/register', {
                     </div>
                     <div class="col-12">
                         <form @submit.prevent="submit" novalidate>
-                            <!-- البيانات الأساسية -->
                             <div class="border_box p_24 white_bc mb_32">
                                 <h3 class="fs-16 dark-color d-flex align-items-center gap-4 mb_24">
                                     <div class="img_box border-bc d-flex align-items-center justify-content-center">
@@ -147,7 +145,6 @@ const submit = () => form.post('/register', {
                                 </div>
                             </div>
 
-                            <!-- المرفقات -->
                             <div class="border_box p_24 white_bc mb_32">
                                 <h3 class="fs-16 dark-color d-flex align-items-center gap-4 mb_24">
                                     <div class="img_box border-bc d-flex align-items-center justify-content-center main-color">
@@ -170,14 +167,16 @@ const submit = () => form.post('/register', {
                                                     </svg>
                                                 </span>
                                             </label>
-                                            <FileTypeHint exts="PDF أو صورة (JPG/PNG/WEBP)" :max-mb="5" />
+                                            <FileTypeHint exts="PDF أو صورة (JPG/PNG/WEBP)" :max-mb="10" />
+                                            <div v-if="form.progress && form[d.name]" class="progress mt_8" style="height:6px; background:#e6e9e8; border-radius:6px; overflow:hidden;">
+                                                <div class="progress-bar" :style="{ width: form.progress.percentage + '%', height: '100%', background: '#1c9c55', transition: 'width .2s' }"></div>
+                                            </div>
                                             <small v-if="form.errors[d.name]" class="red-color d-block">{{ form.errors[d.name] }}</small>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- بيانات الدخول -->
                             <div class="border_box p_24 white_bc mb_32">
                                 <h3 class="fs-16 dark-color d-flex align-items-center gap-4 mb_24">
                                     <div class="img_box border-bc d-flex align-items-center justify-content-center">
@@ -223,7 +222,7 @@ const submit = () => form.post('/register', {
                             </div>
 
                             <div class="d-flex justify-content-end mt_24">
-                                <button type="submit" :disabled="form.processing" class="main_btn m-0 shadow d-flex align-items-center justify-content-center pst_64 pe_64">تسجيل</button>
+                                <button type="submit" :disabled="form.processing" class="main_btn m-0 shadow d-flex align-items-center justify-content-center pst_64 pe_64">{{ form.processing ? 'جاري إنشاء الحساب...' : 'تسجيل' }}</button>
                             </div>
                         </form>
                     </div>

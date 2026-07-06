@@ -8,7 +8,6 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // المدن (تابعة للمناطق)
         Schema::create('cities', function (Blueprint $table) {
             $table->id();
             $table->foreignId('region_id')->constrained('regions')->cascadeOnDelete();

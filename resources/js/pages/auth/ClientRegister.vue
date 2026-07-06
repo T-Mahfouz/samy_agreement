@@ -140,7 +140,7 @@ const submit = () => form.post('/register', { onError: () => { form.password = '
                             </div>
 
                             <div class="d-flex justify-content-end mt_24">
-                                <button type="submit" :disabled="form.processing" class="main_btn m-0 shadow d-flex align-items-center justify-content-center pst_64 pe_64">تسجيل</button>
+                                <button type="submit" :disabled="form.processing" class="main_btn m-0 shadow d-flex align-items-center justify-content-center pst_64 pe_64">{{ form.processing ? 'جاري إنشاء الحساب...' : 'تسجيل' }}</button>
                             </div>
                         </form>
                     </div>

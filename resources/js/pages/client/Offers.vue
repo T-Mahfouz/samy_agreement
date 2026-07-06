@@ -16,7 +16,7 @@ const offerFile = (id: number, type: 'technical' | 'financial') => `/offers/${id
 const num = (v: string | null) => (v ? Number(v).toLocaleString('en', { minimumFractionDigits: 2 }) : '—');
 
 const initialChecks: Record<number, string> = {};
-props.offers.forEach((o) => { initialChecks[o.id] = o.technical_check === 'pending' ? 'matching' : o.technical_check; });
+props.offers.forEach((o) => { initialChecks[o.id] = o.technical_check === 'pending' ? '' : o.technical_check; });
 const awarded = props.offers.find((o) => o.is_awarded);
 
 const form = useForm<{ checks: Record<number, string>; award_offer_id: number | null }>({
@@ -29,7 +29,9 @@ const onCheck = (id: number, val: string) => {
     if (val === 'not_matching' && form.award_offer_id === id) form.award_offer_id = null;
 };
 
-const submit = () => form.put(`/client/tenders/${props.tender.id}/offers`, { preserveScroll: true });
+const submit = () => form
+    .transform((d) => ({ ...d, checks: Object.fromEntries(Object.entries(d.checks).filter(([, v]) => v !== '')) }))
+    .put(`/client/tenders/${props.tender.id}/offers`, { preserveScroll: true });
 </script>
 
 <template>
@@ -77,20 +79,20 @@ const submit = () => form.put(`/client/tenders/${props.tender.id}/offers`, { pre
                                                         </label>
                                                         <label class="offer_exam__choice d-inline-flex align-items-center gap-2 mb-0">
                                                             <input type="radio" :name="`offer_exam_${o.id}`" value="not_matching" :checked="form.checks[o.id] === 'not_matching'" @change="onCheck(o.id, 'not_matching')">
-                                                            <span>غير مطابق</span>
+                                                            <span class="red-color fw-bold">غير مطابق</span>
                                                         </label>
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <a v-if="form.checks[o.id] !== 'not_matching' && o.financial_file" :href="offerFile(o.id, 'financial')" class="second-color"><u>تحميل الملف</u></a>
+                                                    <a v-if="form.checks[o.id] === 'matching' && o.financial_file" :href="offerFile(o.id, 'financial')" class="second-color"><u>تحميل الملف</u></a>
                                                     <span v-else class="dark-color">—</span>
                                                 </td>
                                                 <td class="dark-color ltr">
-                                                    <span v-if="form.checks[o.id] !== 'not_matching'">{{ num(o.financial_value) }}</span>
+                                                    <span v-if="form.checks[o.id] === 'matching'">{{ num(o.financial_value) }}</span>
                                                     <span v-else class="dark-color">—</span>
                                                 </td>
                                                 <td class="offer_award__cell">
-                                                    <label v-if="form.checks[o.id] !== 'not_matching'" class="offer_award__choice d-inline-flex align-items-center justify-content-center gap-2 mb-0">
+                                                    <label v-if="form.checks[o.id] === 'matching'" class="offer_award__choice d-inline-flex align-items-center justify-content-center gap-2 mb-0">
                                                         <input type="radio" name="offer_award" :value="o.id" v-model="form.award_offer_id">
                                                         <span class="dark-color">ترسية</span>
                                                     </label>

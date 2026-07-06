@@ -8,7 +8,6 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // الأسئلة الشائعة (يديرها الأدمن)
         Schema::create('faqs', function (Blueprint $table) {
             $table->id();
             $table->string('question');

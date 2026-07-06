@@ -20,7 +20,6 @@ class CategoryController extends Controller
             ->orderBy('sort_order')
             ->paginate(30, ['id', 'parent_id', 'name', 'is_active', 'sort_order'])->withQueryString();
 
-        // القطاعات الرئيسية فقط (لاختيارها كأب)
         $parents = Category::query()
             ->whereNull('parent_id')
             ->orderBy('sort_order')

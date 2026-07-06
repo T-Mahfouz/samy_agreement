@@ -34,7 +34,8 @@ const img = (n: string) => `/slice/assets/images/${n}`;
 const offerFile = (id: number, type: 'technical' | 'financial') => `/offers/${id}/files/${type}`;
 const num = (v: string | number | null) => (v != null && v !== '' ? Number(v).toLocaleString('en', { minimumFractionDigits: 2 }) : '—');
 const price = (v: string) => (Number(v) > 0 ? `${Number(v).toLocaleString('en')} ريال` : 'مجانية');
-const duration = (m: number | null) => (m ? `${m} شهر` : '—');
+const durationLabels: Record<number, string> = { 3: '3 شهور', 6: '6 شهور', 12: '1 سنة', 24: '2 سنة', 36: '3 سنة', 48: '4 سنة', 60: '5 سنة' };
+const duration = (m: number | null) => (m ? (durationLabels[m] ?? `${m} شهر`) : '—');
 const offerStatusLabels: Record<string, string> = { submitted: 'مقدّم', under_review: 'قيد المراجعة', awarded: 'تم الترسية', rejected: 'مرفوض' };
 const commissionLabels: Record<string, string> = { pending: 'قيد المراجعة', paid: 'تم السداد', rejected: 'مرفوض' };
 const contractLabels: Record<string, string> = { awaiting_signature: 'بانتظار التوقيع', active: 'ساري', completed: 'مكتمل', cancelled: 'ملغي' };
@@ -43,7 +44,6 @@ const remaining = (d: string | null) => { if (!d) return '—'; const x = Math.c
 const tab = ref<'active' | 'awarded'>('active');
 const logout = () => router.post('/logout');
 
-// Commission payment modal
 const commissionOpen = ref(false);
 const activeOffer = ref<OfferRow | null>(null);
 const commissionForm = useForm<{ receipt_file: File | null }>({ receipt_file: null });
@@ -84,36 +84,42 @@ const submitCommission = () => {
                                 </a>
                             </div>
                         </div>
-                        <ul class="d-flex align-items-center gap-4 profile_stats three_item">
+                        <ul v-if="providerStatus === 'approved'" class="d-flex align-items-center gap-4 profile_stats three_item">
                             <li class="text-center p_16 border-radius fs-16 dark-color d-flex flex-column gap-2 main_border"><span class="fw-bold fs-24 main-color">{{ stats.applied }}</span>منافسات تم التقديم عليها</li>
                             <li class="text-center p_16 border-radius fs-16 dark-color d-flex flex-column gap-2 second_border"><span class="fw-bold fs-24 second-color">{{ stats.awarded }}</span>منافسات تمت الترسية لي</li>
                             <li class="text-center p_16 border-radius fs-16 dark-color d-flex flex-column gap-2 dark_border"><span class="fw-bold fs-24 dark-color">{{ stats.contracts }}</span>عقود قائمة</li>
                         </ul>
                     </div>
 
-                    <div v-if="providerStatus === 'pending'" class="col-12 mb_24">
-                        <div class="border_box p_16" style="background:#fff7e6;border-color:#e7761a;">
-                            <p class="fs-16 m-0" style="color:#a85b13;">حسابك قيد المراجعة من إدارة المنصة — سيتم تفعيل تقديم العروض بعد الاعتماد.</p>
+                    <div v-if="providerStatus !== 'approved'" class="col-12">
+                        <div class="border_box p_24 white_bc text-center">
+                            <div class="img_box light_third_bc d-inline-flex align-items-center justify-content-center mb_16" style="width:64px;height:64px;"><img :src="img('details-file.png')" alt="" style="filter: grayscale(1);"></div>
+                            <h3 v-if="providerStatus === 'rejected'" class="fs-20 red-color fw-bold mb_8">تم رفض اعتماد حسابك</h3>
+                            <h3 v-else class="fs-20 fw-bold mb_8" style="color:#a85b13;">حسابك قيد المراجعة من إدارة المنصة</h3>
+                            <p class="fs-16 dark-color m-0">
+                                {{ providerStatus === 'rejected'
+                                    ? 'يرجى التواصل مع إدارة المنصة لمزيد من التفاصيل.'
+                                    : 'لا يمكنك تصفّح المنافسات أو تحميل كراسات الشروط أو تقديم العروض حتى يتم اعتماد حسابك.' }}
+                            </p>
                         </div>
                     </div>
 
-                    <div class="col-12 d-flex align-items-center justify-content-end gap-4 flex-wrap">
+                    <div v-if="providerStatus === 'approved'" class="col-12 d-flex align-items-center justify-content-end gap-4 flex-wrap">
                         <Link href="/provider/booklets" class="main_btn shadow d-inline-flex align-items-center gap-2 pt_4 pb_4 mb_24">
                             <span class="img_box d-inline-flex align-items-center justify-content-center fw-bold fs-24"><img :src="img('details-pdf.png')" alt=""></span>
                             <span>تحميل كراسات الشروط</span>
                         </Link>
                     </div>
 
-                    <div class="col-12 d-flex align-items-end justify-content-between gap-4 flex-wrap items_search">
+                    <div v-if="providerStatus === 'approved'" class="col-12 d-flex align-items-end justify-content-between gap-4 flex-wrap items_search">
                         <ul class="nav nav-tabs partc_tabs w-100" role="tablist">
                             <li class="nav-item" role="presentation"><a class="nav-link" :class="{ active: tab === 'active' }" href="#" @click.prevent="tab = 'active'">منافسات تم التقديم عليها</a></li>
                             <li class="nav-item" role="presentation"><a class="nav-link" :class="{ active: tab === 'awarded' }" href="#" @click.prevent="tab = 'awarded'">منافسات تمت الترسية لي</a></li>
                         </ul>
                     </div>
 
-                    <div class="col-12">
+                    <div v-if="providerStatus === 'approved'" class="col-12">
                         <div class="tab-content mt_32">
-                            <!-- Applied -->
                             <div v-show="tab === 'active'">
                                 <p v-if="activeOffers.data.length === 0" class="border_box p_24 white_bc text-center dark-color">لم تقدّم على أي منافسة بعد</p>
                                 <div v-for="o in activeOffers.data" :key="o.id" class="border_box p_24 white_bc mb_24">
@@ -162,7 +168,6 @@ const submitCommission = () => {
                                 <SlicePagination :links="activeOffers.links" />
                             </div>
 
-                            <!-- Awarded -->
                             <div v-show="tab === 'awarded'">
                                 <p v-if="awardedOffers.data.length === 0" class="border_box p_24 white_bc text-center dark-color">لا توجد منافسات تمت ترسيتها لك</p>
                                 <div v-for="o in awardedOffers.data" :key="o.id" class="border_box p_24 white_bc mb_24">
@@ -219,7 +224,6 @@ const submitCommission = () => {
             </div>
         </section>
 
-        <!-- Commission payment modal -->
         <teleport to="body">
             <div v-if="commissionOpen" class="modal-backdrop fade show" style="position:fixed; inset:0; background-color:rgba(0,0,0,.5); z-index:99999;" @click="commissionOpen = false"></div>
             <div class="modal fade tender_book_modal" :class="{ show: commissionOpen }" :style="{ display: commissionOpen ? 'block' : 'none', position: 'fixed', inset: '0', zIndex: 9999999 }" tabindex="-1" role="dialog">

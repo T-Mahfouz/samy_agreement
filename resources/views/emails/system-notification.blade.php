@@ -10,14 +10,12 @@
         <tr>
             <td align="center">
                 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px; width:100%; background-color:#ffffff; border-radius:10px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.08);">
-                    {{-- الترويسة --}}
                     <tr>
                         <td align="center" style="background-color:#1c9c55; padding:24px;">
                             <img src="{{ $logoUrl }}" alt="منصة اتفاق" height="48" style="display:block; height:48px; border:0;">
                         </td>
                     </tr>
 
-                    {{-- المحتوى --}}
                     <tr>
                         <td style="padding:32px 28px;">
                             <p style="margin:0 0 16px; font-size:15px; color:#333333;">
@@ -48,7 +46,6 @@
                         </td>
                     </tr>
 
-                    {{-- التذييل --}}
                     <tr>
                         <td align="center" style="padding:20px; background-color:#f4f6f5; border-top:1px solid #e6e9e8;">
                             <p style="margin:0; font-size:13px; color:#888888;">

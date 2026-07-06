@@ -14,7 +14,6 @@ class SettingController extends Controller
 {
     use NormalizesIban;
 
-    /** مفاتيح الإعدادات المعروفة */
     private const KEYS = [
         'platform_bank_name',
         'platform_bank_beneficiary',
@@ -32,7 +31,6 @@ class SettingController extends Controller
             ->whereIn('key', self::KEYS)
             ->pluck('value', 'key');
 
-        // ضمان وجود كل المفاتيح (حتى الفارغة) للنموذج
         $values = [];
         foreach (self::KEYS as $key) {
             $values[$key] = $settings[$key] ?? '';

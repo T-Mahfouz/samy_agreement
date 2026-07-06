@@ -71,7 +71,6 @@ class ContractController extends Controller
 
         $contract->save();
 
-        // إشعار الطرف الآخر
         $otherUserId = $side === 'client' ? $contract->provider?->user_id : $contract->client?->user_id;
         if ($contract->status === 'active') {
             Notification::notify($contract->client?->user_id, 'تم تفعيل العقد', 'تم توقيع العقد من الطرفين وأصبح ساريًا.', "/contract/{$contract->id}");
@@ -83,7 +82,6 @@ class ContractController extends Controller
         return back()->with('success', 'تم توقيع العقد إلكترونيًا.');
     }
 
-    /** يحدد طرف المستخدم الحالي في العقد: client | provider | null */
     private function side(Request $request, Contract $contract): ?string
     {
         $user = $request->user();

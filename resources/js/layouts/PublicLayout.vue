@@ -6,7 +6,6 @@ import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
 import { onClickOutside } from '@vueuse/core';
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 
-// style.css يقفل التمرير على body؛ في الأصل main.js يفتحه: $("body").css({ "overflow-y": "visible" })
 onMounted(() => {
     document.body.style.overflowY = 'visible';
 });
@@ -51,7 +50,6 @@ const submitLogin = () => loginForm.post('/login', { onError: () => (loginForm.p
 
     <FlashToast />
 
-    <!-- Header -->
     <header>
         <div class="container">
             <div class="row">
@@ -141,7 +139,7 @@ const submitLogin = () => loginForm.post('/login', { onError: () => (loginForm.p
                                 </div> عن المنصة
                             </Link>
                         </li>
-                        <li><Link href="/faqs" class="d-flex align-items-center gap-4" :class="{ active: isNavActive('faqs') }">
+                        <li><Link href="/contact" class="d-flex align-items-center gap-4" :class="{ active: isNavActive('faqs') }">
                                 <div class="img_box d-flex align-items-center justify-content-center">
                                     <img :src="img('menu-icon-3.png')" alt="">
                                 </div> المساعدة
@@ -153,12 +151,10 @@ const submitLogin = () => loginForm.post('/login', { onError: () => (loginForm.p
         </nav>
     </header>
 
-    <!-- Page Content -->
     <div class="page_content">
         <slot />
     </div>
 
-    <!-- Footer -->
     <footer>
         <div class="topbar main_bc p_16">
             <ul class="d-flex align-items-center flex-wrap justify-content-center">

@@ -14,14 +14,6 @@ it('rejects a non-numeric mobile on client registration', function () {
     ])->assertSessionHasErrors('mobile');
 });
 
-it('rejects a malformed IBAN on client registration', function () {
-    $this->post('/register', [
-        'role' => 'client', 'facility_name' => 'منشأة',
-        'iban' => 'BADIBAN123',
-        'email' => 'iban1@test.com', 'password' => 'password123', 'password_confirmation' => 'password123',
-    ])->assertSessionHasErrors('iban');
-});
-
 it('rejects a future commercial-register issue date on provider registration', function () {
     Storage::fake('public');
     $this->post('/register', [

@@ -57,7 +57,6 @@ class ProviderController extends Controller
 
         $provider->update($data);
 
-        // مزامنة حالة حساب المستخدم
         $userStatus = match ($data['status']) {
             'approved' => 'active',
             'rejected' => 'suspended',

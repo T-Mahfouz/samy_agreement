@@ -5,7 +5,6 @@ import { Head, useForm } from '@inertiajs/vue3';
 defineProps<{ info: { phone: string; whatsapp: string; email: string; support_email: string } }>();
 const img = (n: string) => `/slice/assets/images/${n}`;
 
-// تحويل رقم محلي (يبدأ بـ 0) إلى رابط واتساب دولي (966)
 const waLink = (n: string) => {
     const d = (n || '').replace(/\D/g, '');
     const intl = d.startsWith('966') ? d : d.replace(/^0/, '966');
@@ -32,7 +31,6 @@ const submit = () => form.post('/contact', { preserveScroll: true, onSuccess: ()
                     <div class="col-12">
                         <div class="border_box white_bc contact_wrap">
                             <div class="row m-0">
-                                <!-- Contact info -->
                                 <div class="col-12 col-lg-4 border_end p_24">
                                     <h3 class="fs-16 main-color d-inline-flex align-items-center gap-4 mb_24">
                                         <div class="img_box dark_gray_bc d-flex align-items-center justify-content-center"><img :src="img('contact-file.png')" alt="" class="m-0"></div>
@@ -63,7 +61,6 @@ const submit = () => form.post('/contact', { preserveScroll: true, onSuccess: ()
                                         <li class="border-0"><a href="#" aria-label="X"><img :src="img('x.png')" alt=""></a></li>
                                     </ul>
                                 </div>
-                                <!-- Contact form -->
                                 <div class="col-12 col-lg-8 p_24">
                                     <h3 class="fs-16 main-color d-inline-flex align-items-center gap-4 mb_24">
                                         <div class="img_box dark_gray_bc d-flex align-items-center justify-content-center"><img :src="img('contact-mail-white.png')" alt="" class="m-0"></div>

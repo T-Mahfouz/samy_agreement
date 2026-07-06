@@ -7,13 +7,8 @@ use App\Models\ProviderDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-/**
- * يقدّم ملفات القرص العام (إيصالات السداد، مستندات المورّد) عبر مسارات مؤمّنة
- * بدل الاعتماد على رابط storage الرمزي — يعمل على أي استضافة وأكثر أمانًا.
- */
 class FileDownloadController extends Controller
 {
-    /** إيصال سداد (كراسة الشروط أو العمولة): المورّد صاحبه، أو عميل المنافسة، أو الأدمن. */
     public function paymentReceipt(Request $request, Payment $payment)
     {
         $user = $request->user();
@@ -29,7 +24,6 @@ class FileDownloadController extends Controller
         return Storage::disk('public')->response($payment->receipt_file);
     }
 
-    /** مستند مورّد: المورّد صاحبه، أو الأدمن. */
     public function providerDocument(Request $request, ProviderDocument $document)
     {
         $user = $request->user();

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-// تلميح أسفل أي حقل رفع ملف يوضّح الصيغ المسموحة وأقصى حجم.
-// مُنسّق inline ليعمل في صفحات Slice (بدون Tailwind) وصفحات الأدمن معًا.
 defineProps<{ exts: string; maxMb: number }>();
 </script>
 

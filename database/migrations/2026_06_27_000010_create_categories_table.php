@@ -8,7 +8,6 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // التصنيفات: شجرة بأي عدد مستويات (قطاع رئيسي -> نشاط فرعي -> ...)
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('parent_id')->nullable()->constrained('categories')->nullOnDelete();

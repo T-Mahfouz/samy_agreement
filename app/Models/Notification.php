@@ -18,7 +18,6 @@ class Notification extends Model
         return $this->belongsTo(User::class);
     }
 
-    /** إنشاء إشعار لمستخدم */
     public static function notify(?int $userId, string $title, ?string $body = null, ?string $link = null): void
     {
         if (! $userId) {
@@ -31,7 +30,6 @@ class Notification extends Model
             'link' => $link,
         ]);
 
-        // إرسال بريد بنفس محتوى الإشعار — يجب ألا يُعطّل إنشاء الإشعار أبدًا
         try {
             $user = User::find($userId);
             if ($user && $user->email) {
@@ -50,7 +48,6 @@ class Notification extends Model
         }
     }
 
-    /** إشعار لكل الأدمن */
     public static function notifyAdmins(string $title, ?string $body = null, ?string $link = null): void
     {
         User::where('role', 'admin')->pluck('id')->each(

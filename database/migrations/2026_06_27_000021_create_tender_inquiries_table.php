@@ -8,7 +8,6 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // الأسئلة والاستفسارات على المنافسة
         Schema::create('tender_inquiries', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tender_id')->constrained('tenders')->cascadeOnDelete();

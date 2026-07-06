@@ -40,7 +40,6 @@ class Tender extends Model
         'published_at' => 'datetime:Y-m-d',
     ];
 
-    /** آخر موعد لتقديم العروض كتاريخ ووقت كامل (يدمج التاريخ مع الوقت). */
     public function offersDeadlineAt(): ?Carbon
     {
         if (! $this->offers_deadline) {
@@ -50,11 +49,9 @@ class Tender extends Model
         $date = Carbon::parse($this->offers_deadline)->format('Y-m-d');
         $time = trim((string) $this->offers_deadline_time);
 
-        // المواعيد معروضة بتوقيت الرياض، فنفسّرها بنفس التوقيت (التطبيق يعمل بـ UTC).
         return Carbon::parse($date.' '.($time !== '' ? $time : '23:59:59'), 'Asia/Riyadh');
     }
 
-    /** هل ما زال بإمكان الموردين تقديم عروض؟ (المنافسة نشطة ولم ينته آخر موعد). */
     public function offersOpen(): bool
     {
         if ($this->status !== 'active') {

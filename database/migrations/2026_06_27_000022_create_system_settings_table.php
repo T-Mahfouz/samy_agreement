@@ -8,7 +8,6 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // إعدادات عامة (key/value): الحساب البنكي للمنصة، بيانات التواصل، النسبة الافتراضية...
         Schema::create('system_settings', function (Blueprint $table) {
             $table->id();
             $table->string('key')->unique();

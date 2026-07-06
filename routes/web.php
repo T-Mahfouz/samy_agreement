@@ -4,7 +4,6 @@ use App\Http\Controllers\PublicTenderController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-// الموقع العام
 Route::get('/', [PublicTenderController::class, 'index'])->name('home');
 Route::get('/tenders/{tender}', [PublicTenderController::class, 'show'])->name('tenders.show');
 Route::get('/about', [\App\Http\Controllers\PublicPageController::class, 'about'])->name('about');
@@ -14,31 +13,25 @@ Route::post('/contact', [\App\Http\Controllers\PublicPageController::class, 'con
 Route::get('/terms', [\App\Http\Controllers\PublicPageController::class, 'terms'])->name('terms');
 Route::get('/privacy', [\App\Http\Controllers\PublicPageController::class, 'privacy'])->name('privacy');
 
-// إعادة توجيه حسب الدور
 Route::get('dashboard', function () {
     return redirect(auth()->user()->dashboardPath());
 })->middleware(['auth'])->name('dashboard');
 
-// العقد الإلكتروني (الطرفان + الأدمن)
 Route::middleware('auth')->group(function () {
     Route::get('contract/{contract}', [\App\Http\Controllers\ContractController::class, 'show'])->name('contract.show');
     Route::post('contract/{contract}/sign', [\App\Http\Controllers\ContractController::class, 'sign'])->name('contract.sign');
 
-    // الإشعارات
     Route::put('notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'read'])->name('notifications.read');
     Route::put('notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'readAll'])->name('notifications.readAll');
 
-    // تحميل ملفات العروض (المورّد صاحب العرض / عميل المنافسة / الأدمن)
     Route::get('offers/{offer}/files/{type}', [\App\Http\Controllers\OfferFileController::class, 'download'])
         ->whereIn('type', ['technical', 'financial'])
         ->name('offers.file.download');
 
-    // إيصالات السداد ومستندات المورّد (بدل رابط storage الرمزي)
     Route::get('payments/{payment}/receipt', [\App\Http\Controllers\FileDownloadController::class, 'paymentReceipt'])->name('payments.receipt');
     Route::get('provider-documents/{document}/download', [\App\Http\Controllers\FileDownloadController::class, 'providerDocument'])->name('provider.documents.download');
 });
 
-// بوابة العميل
 Route::middleware(['auth', 'role:client'])->prefix('client')->name('client.')->group(function () {
     Route::get('dashboard', [\App\Http\Controllers\Client\DashboardController::class, 'index'])->name('dashboard');
     Route::get('tenders/create', [\App\Http\Controllers\Client\TenderController::class, 'create'])->name('tenders.create');
@@ -54,7 +47,6 @@ Route::middleware(['auth', 'role:client'])->prefix('client')->name('client.')->g
     Route::put('profile', [\App\Http\Controllers\Client\ProfileController::class, 'update'])->name('profile.update');
 });
 
-// بوابة المورّد
 Route::middleware(['auth', 'role:provider'])->prefix('provider')->name('provider.')->group(function () {
     Route::get('dashboard', [\App\Http\Controllers\Provider\DashboardController::class, 'index'])->name('dashboard');
     Route::post('tenders/{tender}/offer', [\App\Http\Controllers\Provider\OfferController::class, 'store'])->name('offers.store');
@@ -65,6 +57,8 @@ Route::middleware(['auth', 'role:provider'])->prefix('provider')->name('provider
     Route::get('profile', [\App\Http\Controllers\Provider\ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('profile', [\App\Http\Controllers\Provider\ProfileController::class, 'update'])->name('profile.update');
 });
+
+Route::get('test-email', [\App\Http\Controllers\Admin\TestEmailController::class,'send']);
 
 require __DIR__.'/settings.php';
 require __DIR__.'/admin.php';

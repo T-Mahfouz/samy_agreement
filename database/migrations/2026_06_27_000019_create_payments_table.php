@@ -8,18 +8,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // المدفوعات (إيصالات تحويل): كراسة الشروط + عمولة المنصة
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->enum('type', ['brochure_fee', 'commission']); // نوع الدفع
+            $table->enum('type', ['brochure_fee', 'commission']);
             $table->foreignId('tender_id')->constrained('tenders')->cascadeOnDelete();
-            $table->foreignId('offer_id')->nullable()->constrained('offers')->nullOnDelete(); // للعمولة (العرض الفائز)
-            $table->foreignId('provider_id')->constrained('provider_profiles')->cascadeOnDelete(); // الدافع
-            $table->enum('paid_to', ['client', 'platform']); // الكراسة->العميل، العمولة->المنصة
+            $table->foreignId('offer_id')->nullable()->constrained('offers')->nullOnDelete();
+            $table->foreignId('provider_id')->constrained('provider_profiles')->cascadeOnDelete();
+            $table->enum('paid_to', ['client', 'platform']);
             $table->decimal('amount', 14, 2);
-            $table->string('receipt_file')->nullable();      // إيصال التحويل
+            $table->string('receipt_file')->nullable();
             $table->enum('status', ['pending', 'paid', 'rejected'])->default('pending');
-            $table->foreignId('reviewed_by')->nullable()->constrained('users')->nullOnDelete(); // من اعتمد
+            $table->foreignId('reviewed_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('reviewed_at')->nullable();
             $table->timestamps();
 

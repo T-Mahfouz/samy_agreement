@@ -8,19 +8,17 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // العقد الإلكتروني (يوافق عليه الطرفان)
         Schema::create('contracts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tender_id')->constrained('tenders')->cascadeOnDelete();
-            $table->foreignId('offer_id')->constrained('offers')->cascadeOnDelete(); // العرض الفائز
+            $table->foreignId('offer_id')->constrained('offers')->cascadeOnDelete();
             $table->foreignId('client_id')->constrained('client_profiles')->cascadeOnDelete();
             $table->foreignId('provider_id')->constrained('provider_profiles')->cascadeOnDelete();
-            $table->longText('content')->nullable();         // نص العقد
-            $table->decimal('contract_value', 14, 2)->nullable();   // قيمة العرض المتعاقد عليه
-            $table->unsignedInteger('contract_duration_months')->nullable(); // مدة العقد
-            $table->date('documentation_date')->nullable();  // تاريخ التوثيق
+            $table->longText('content')->nullable();
+            $table->decimal('contract_value', 14, 2)->nullable();
+            $table->unsignedInteger('contract_duration_months')->nullable();
+            $table->date('documentation_date')->nullable();
 
-            // التوقيع الإلكتروني لكل طرف (وقت + IP)
             $table->timestamp('client_signed_at')->nullable();
             $table->string('client_signed_ip', 45)->nullable();
             $table->timestamp('provider_signed_at')->nullable();

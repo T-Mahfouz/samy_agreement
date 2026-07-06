@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import InputError from '@/components/InputError.vue';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, router, useForm } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
 interface SettingsData {
     platform_bank_name: string;
@@ -29,6 +30,12 @@ const breadcrumbs: BreadcrumbItem[] = [
 const form = useForm({ ...props.settings });
 
 const submit = () => form.put('/admin/settings', { preserveScroll: true });
+
+const sendingTest = ref(false);
+const sendTestEmail = () => {
+    sendingTest.value = true;
+    router.post('/admin/test-email', {}, { preserveScroll: true, onFinish: () => (sendingTest.value = false) });
+};
 </script>
 
 <template>
@@ -36,9 +43,14 @@ const submit = () => form.put('/admin/settings', { preserveScroll: true });
 
     <AdminLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 p-4 md:p-6">
-            <div>
-                <h1 class="text-2xl font-bold">الإعدادات</h1>
-                <p class="text-sm text-muted-foreground">إعدادات المنصة العامة</p>
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <h1 class="text-2xl font-bold">الإعدادات</h1>
+                    <p class="text-sm text-muted-foreground">إعدادات المنصة العامة</p>
+                </div>
+                <Button type="button" variant="outline" :disabled="sendingTest" @click="sendTestEmail">
+                    {{ sendingTest ? 'جارٍ الإرسال...' : 'إرسال بريد تجريبي' }}
+                </Button>
             </div>
 
             <form @submit.prevent="submit" class="space-y-4">

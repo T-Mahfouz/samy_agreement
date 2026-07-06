@@ -131,14 +131,13 @@ it('lets a provider upload a commission receipt for an awarded offer', function 
 
     $pay = Payment::where('type', 'commission')->where('offer_id', $offer->id)->first();
     expect($pay)->not->toBeNull();
-    expect((float) $pay->amount)->toBe(100.0); // 10000 * 1%
+    expect((float) $pay->amount)->toBe(100.0);
 });
 
 it('prevents submitting an offer after the deadline has passed', function () {
     Storage::fake('local');
     $user = providerUser('approved');
     $tender = aTender();
-    // المنافسة ما زالت "active" لكن آخر موعد انتهى أمس
     $tender->update(['offers_deadline' => now()->subDay()->format('Y-m-d'), 'offers_deadline_time' => '12:00:00']);
 
     $this->actingAs($user)->post("/provider/tenders/{$tender->id}/offer", [
@@ -146,7 +145,7 @@ it('prevents submitting an offer after the deadline has passed', function () {
         'financial_file' => UploadedFile::fake()->create('f.pdf', 50, 'application/pdf'),
         'financial_value' => 5000,
         'declaration_accepted' => true,
-    ])->assertSessionHas('error'); // feedback واضح للمورّد
+    ])->assertSessionHas('error');
 
     expect(Offer::where('tender_id', $tender->id)->count())->toBe(0);
 });
@@ -168,9 +167,9 @@ it('lets the owning provider download their offer file but blocks other provider
     $this->actingAs($other)->get("/offers/{$offer->id}/files/technical")->assertForbidden();
 });
 
-it('shows a provider only the tenders in their own category', function () {
-    $catA = Category::create(['name' => 'إنشاءات', 'is_active' => true]);
-    $catB = Category::create(['name' => 'تقنية المعلومات', 'is_active' => true]);
+it('defaults to the first category and lets a provider browse any category', function () {
+    $catA = Category::create(['name' => 'إنشاءات', 'is_active' => true, 'sort_order' => 1]);
+    $catB = Category::create(['name' => 'تقنية المعلومات', 'is_active' => true, 'sort_order' => 2]);
 
     $client = ClientProfile::create(['user_id' => User::factory()->create(['role' => 'client'])->id, 'company_name' => 'عميل']);
     $mk = fn (string $name, int $cat) => Tender::create([
@@ -186,8 +185,13 @@ it('shows a provider only the tenders in their own category', function () {
 
     $this->actingAs($user)->get('/')->assertInertia(fn (Assert $page) => $page
         ->component('public/Tenders/Index')
-        ->where('lockedCategoryId', $catA->id)
+        ->where('filters.category_id', $catA->id)
         ->has('tenders.data', 1)
         ->where('tenders.data.0.name', 'منافسة إنشاءات')
+    );
+
+    $this->actingAs($user)->get('/?category_id='.$catB->id)->assertInertia(fn (Assert $page) => $page
+        ->has('tenders.data', 1)
+        ->where('tenders.data.0.name', 'منافسة تقنية')
     );
 });

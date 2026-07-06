@@ -93,7 +93,6 @@ it('accepts a real docx booklet even when it is detected as a zip file', functio
         'booklet_file' => $file,
     ])->assertSessionHasNoErrors()->assertRedirect('/client/dashboard');
 
-    // الملف المخزَّن يحتفظ بامتداده الأصلي حتى يُحمَّل بشكل صحيح
     $tender = Tender::where('name', 'منافسة بملف docx حقيقي')->firstOrFail();
     expect($tender->brochure_file)->toEndWith('.docx');
 

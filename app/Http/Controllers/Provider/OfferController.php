@@ -15,7 +15,6 @@ class OfferController extends Controller
 {
     use StoresUploads;
 
-    /** تقديم عرض على منافسة */
     public function store(Request $request, Tender $tender): RedirectResponse
     {
         $provider = $request->user()->providerProfile;
@@ -24,7 +23,9 @@ class OfferController extends Controller
         if ($provider->status !== 'approved') {
             return back()->with('error', 'لا يمكنك تقديم عرض قبل اعتماد حسابك من الإدارة.');
         }
-        // يمنع التقديم بعد انتهاء آخر موعد لتقديم العروض (أو إذا لم تعد المنافسة نشطة).
+        if ((int) $tender->category_id !== (int) $provider->main_category_id) {
+            return back()->with('error', 'لا يمكنك التقديم على منافسة خارج تخصصك.');
+        }
         if (! $tender->offersOpen()) {
             return back()->with('error', 'انتهت فترة تقديم العروض لهذه المنافسة.');
         }
@@ -32,7 +33,6 @@ class OfferController extends Controller
             return back()->with('error', 'لقد قدّمت عرضًا على هذه المنافسة بالفعل.');
         }
 
-        // docx أصله zip → mimes:docx يفشل على كثير من السيرفرات؛ نتحقق بالامتداد + أنواع محتوى واسعة
         $offerFileRules = [
             'required', 'file', 'extensions:pdf,doc,docx,jpg,jpeg,png,webp',
             'mimetypes:application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip,application/x-zip-compressed,application/x-cfb,image/jpeg,image/png,image/webp',
@@ -58,7 +58,6 @@ class OfferController extends Controller
 
         $tender->offers()->create([
             'provider_id' => $provider->id,
-            // ملفات العروض سرّية → قرص خاص (تُحمَّل عبر مسار مُصرّح به فقط)
             'technical_file' => $this->storeUpload($request->file('technical_file'), "offers/{$tender->id}", 'local'),
             'financial_file' => $this->storeUpload($request->file('financial_file'), "offers/{$tender->id}", 'local'),
             'financial_value' => $data['financial_value'],
@@ -78,13 +77,17 @@ class OfferController extends Controller
         return back()->with('success', 'تم إرسال عرضك بنجاح.');
     }
 
-    /** رفع إيصال سداد قيمة كراسة الشروط */
     public function brochurePayment(Request $request, Tender $tender): RedirectResponse
     {
         $provider = $request->user()->providerProfile;
         abort_unless($provider, 403);
 
-        // لا فائدة من طلب كراسة الشروط بعد انتهاء آخر موعد لتقديم العروض
+        if ($provider->status !== 'approved') {
+            return back()->with('error', 'لا يمكنك طلب كراسة الشروط قبل اعتماد حسابك من الإدارة.');
+        }
+        if ((int) $tender->category_id !== (int) $provider->main_category_id) {
+            return back()->with('error', 'لا يمكنك طلب كراسة الشروط لمنافسة خارج تخصصك.');
+        }
         if (! $tender->offersOpen()) {
             return back()->with('error', 'انتهت فترة طلب كراسة الشروط لهذه المنافسة.');
         }
@@ -115,7 +118,6 @@ class OfferController extends Controller
         return back()->with('success', 'تم رفع إيصال قيمة كراسة الشروط، بانتظار الاعتماد.');
     }
 
-    /** رفع إيصال سداد عمولة المنصة */
     public function commissionPayment(Request $request, Offer $offer): RedirectResponse
     {
         $provider = $request->user()->providerProfile;

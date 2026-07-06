@@ -36,15 +36,12 @@ class RecomputeTenderStatuses extends Command
 
     private function computeStatus(Tender $tender, $now): string
     {
-        // قبل آخر موعد لتقديم العروض → نشطة
         if ($tender->offers_deadline && $now->lte($tender->offers_deadline->endOfDay())) {
             return 'active';
         }
-        // بعد الموعد وقبل التاريخ المتوقع للترسية → مرحلة فحص العروض
         if ($tender->expected_award_date && $now->lte($tender->expected_award_date->endOfDay())) {
             return 'examination';
         }
-        // عدّى التاريخ المتوقع للترسية → مرحلة الترسية
         if ($tender->offers_deadline) {
             return 'awarding';
         }

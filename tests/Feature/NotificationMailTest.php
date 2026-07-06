@@ -39,3 +39,13 @@ it('emails every admin when notifying admins', function () {
 
     Mail::assertQueued(SystemNotificationMail::class, 2);
 });
+
+it('lets an admin send a test email to verify SMTP', function () {
+    Mail::fake();
+
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    $this->actingAs($admin)->post('/admin/test-email')->assertRedirect();
+
+    Mail::assertSent(SystemNotificationMail::class, fn ($m) => $m->hasTo($admin->email));
+});

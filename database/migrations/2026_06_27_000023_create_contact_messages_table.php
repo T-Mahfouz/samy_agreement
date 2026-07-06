@@ -8,7 +8,6 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // رسائل نموذج "تواصل معنا"
         Schema::create('contact_messages', function (Blueprint $table) {
             $table->id();
             $table->string('full_name');

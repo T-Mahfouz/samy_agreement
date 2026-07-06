@@ -57,7 +57,6 @@ class User extends Authenticatable
         return $this->role === 'provider';
     }
 
-    /** المسار الافتراضي للوحة التحكم حسب الدور */
     public function dashboardPath(): string
     {
         return match ($this->role) {

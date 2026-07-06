@@ -9,10 +9,6 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class OfferFileController extends Controller
 {
-    /**
-     * تحميل ملف العرض الفني أو المالي بشكل آمن.
-     * مسموح فقط: المورّد صاحب العرض، أو عميل المنافسة، أو الأدمن.
-     */
     public function download(Request $request, Offer $offer, string $type): StreamedResponse
     {
         abort_unless(in_array($type, ['technical', 'financial'], true), 404);

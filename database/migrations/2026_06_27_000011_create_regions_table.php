@@ -8,7 +8,6 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // المناطق
         Schema::create('regions', function (Blueprint $table) {
             $table->id();
             $table->string('name');

@@ -71,12 +71,11 @@ it('rejects a disallowed file type on an optional provider document', function (
         'password' => 'password123',
         'password_confirmation' => 'password123',
         'attach_cr' => UploadedFile::fake()->create('cr.pdf', 100, 'application/pdf'),
-        // .exe خارج mimes المسموحة (pdf,jpg,jpeg,png,webp) — لازم يترفض
         'attach_zakat' => UploadedFile::fake()->create('virus.exe', 100, 'application/octet-stream'),
     ])->assertSessionHasErrors('attach_zakat');
 });
 
-it('rejects an oversized optional provider document (> 5MB)', function () {
+it('rejects an oversized optional provider document (> 10MB)', function () {
     Storage::fake('public');
 
     $this->post('/register', [
@@ -86,8 +85,7 @@ it('rejects an oversized optional provider document (> 5MB)', function () {
         'password' => 'password123',
         'password_confirmation' => 'password123',
         'attach_cr' => UploadedFile::fake()->create('cr.pdf', 100, 'application/pdf'),
-        // 6 ميجا > الحد الأقصى 5 ميجا
-        'attach_tax' => UploadedFile::fake()->create('big.pdf', 6144, 'application/pdf'),
+        'attach_tax' => UploadedFile::fake()->create('big.pdf', 11264, 'application/pdf'),
     ])->assertSessionHasErrors('attach_tax');
 });
 

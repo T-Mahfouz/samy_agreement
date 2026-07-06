@@ -7,7 +7,6 @@ let timer: ReturnType<typeof setInterval> | undefined;
 
 const target = () => {
     if (!props.deadline) return null;
-    // ضم الوقت إن وُجد، وإلا نهاية اليوم
     const t = props.time ? props.time.slice(0, 5) : '23:59';
     return new Date(`${props.deadline}T${t}:00`).getTime();
 };

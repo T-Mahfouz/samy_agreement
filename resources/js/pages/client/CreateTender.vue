@@ -13,13 +13,22 @@ const isEditing = !!props.tender;
 const t = props.tender ?? {};
 const v = (key: string, def: any = '') => (t[key] ?? def);
 
-// تاريخ اليوم (YYYY-MM-DD) لمنع اختيار تواريخ ماضية في حقول التاريخ
 const today = (() => {
     const d = new Date();
     const m = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${d.getFullYear()}-${m}-${day}`;
 })();
+
+const hijriOf = (greg: string) => {
+    if (!greg) return '';
+    try {
+        return new Intl.DateTimeFormat('ar-SA-u-ca-islamic-nu-latn', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(new Date(greg));
+    } catch {
+        return '';
+    }
+};
+const syncHijri = (gregKey: string, hijriKey: string) => { form[hijriKey] = hijriOf(form[gregKey]); };
 
 const form = useForm<Record<string, any>>({
     type: v('type', 'general'),
@@ -84,7 +93,6 @@ const submit = () => {
 
                     <div class="col-12">
                         <form @submit.prevent="submit" novalidate>
-                            <!-- البيانات الأساسية -->
                             <div class="border_box p_24 white_bc mb_32">
                                 <h3 class="fs-16 dark-color d-flex align-items-center gap-4 mb_24">
                                     <div class="img_box dark_gray_bc d-flex align-items-center justify-content-center"><img :src="img('details-file.png')" alt="" class="m-0"></div>
@@ -209,31 +217,29 @@ const submit = () => {
                                 </div>
                             </div>
 
-                            <!-- العناوين والمواعيد -->
                             <div class="border_box p_24 white_bc mb_32">
                                 <h3 class="fs-16 dark-color d-flex align-items-center gap-4 mb_24">
                                     <div class="img_box dark_gray_bc d-flex align-items-center justify-content-center"><img :src="img('details-clock.png')" alt="" class="m-0"></div>
                                     العناوين والمواعيد للمنافسة
                                 </h3>
                                 <div class="row">
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">آخر موعد لإستلام الإستفسارات ( ميلادي )</label><input type="date" class="form-control" :min="today" :max="form.offers_deadline || undefined" v-model="form.questions_deadline"><small v-if="form.errors.questions_deadline" class="red-color d-block">{{ form.errors.questions_deadline }}</small></div></div>
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">آخر موعد لإستلام الإستفسارات ( هجري )</label><input type="text" class="form-control" v-model="form.questions_deadline_hijri" placeholder="هجري"></div></div>
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">آخر موعد لتقديم العروض ( ميلادي ) <span class="red-color">*</span></label><input type="date" class="form-control" :min="today" v-model="form.offers_deadline"><small v-if="form.errors.offers_deadline" class="red-color d-block">{{ form.errors.offers_deadline }}</small></div></div>
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">آخر موعد لتقديم العروض ( هجري )</label><input type="text" class="form-control" v-model="form.offers_deadline_hijri" placeholder="هجري"></div></div>
+                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">آخر موعد لإستلام الإستفسارات ( ميلادي )</label><input type="date" class="form-control" :min="today" :max="form.offers_deadline || undefined" v-model="form.questions_deadline" @change="syncHijri('questions_deadline','questions_deadline_hijri')"><small v-if="form.errors.questions_deadline" class="red-color d-block">{{ form.errors.questions_deadline }}</small></div></div>
+                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">آخر موعد لإستلام الإستفسارات ( هجري )</label><input type="text" class="form-control" v-model="form.questions_deadline_hijri" placeholder="يُملأ تلقائيًا من الميلادي" readonly></div></div>
+                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">آخر موعد لتقديم العروض ( ميلادي ) <span class="red-color">*</span></label><input type="date" class="form-control" :min="today" v-model="form.offers_deadline" @change="syncHijri('offers_deadline','offers_deadline_hijri')"><small v-if="form.errors.offers_deadline" class="red-color d-block">{{ form.errors.offers_deadline }}</small></div></div>
+                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">آخر موعد لتقديم العروض ( هجري )</label><input type="text" class="form-control" v-model="form.offers_deadline_hijri" placeholder="يُملأ تلقائيًا من الميلادي" readonly></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">وقت آخر موعد لتقديم العروض</label><input type="time" class="form-control" v-model="form.offers_deadline_time"></div></div>
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">تاريخ فتح العروض ( ميلادي )</label><input type="date" class="form-control" :min="form.offers_deadline || today" v-model="form.offers_open"><small v-if="form.errors.offers_open" class="red-color d-block">{{ form.errors.offers_open }}</small></div></div>
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">تاريخ فتح العروض ( هجري )</label><input type="text" class="form-control" v-model="form.offers_open_hijri" placeholder="هجري"></div></div>
+                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">تاريخ فتح العروض ( ميلادي )</label><input type="date" class="form-control" :min="form.offers_deadline || today" v-model="form.offers_open" @change="syncHijri('offers_open','offers_open_hijri')"><small v-if="form.errors.offers_open" class="red-color d-block">{{ form.errors.offers_open }}</small></div></div>
+                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">تاريخ فتح العروض ( هجري )</label><input type="text" class="form-control" v-model="form.offers_open_hijri" placeholder="يُملأ تلقائيًا من الميلادي" readonly></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">وقت فتح العروض</label><input type="time" class="form-control" v-model="form.offers_open_time"></div></div>
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">التاريخ المتوقع للترسية ( ميلادي )</label><input type="date" class="form-control" :min="form.offers_deadline || today" v-model="form.expected_award_date"><small v-if="form.errors.expected_award_date" class="red-color d-block">{{ form.errors.expected_award_date }}</small></div></div>
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">التاريخ المتوقع للترسية ( هجري )</label><input type="text" class="form-control" v-model="form.expected_award_date_hijri" placeholder="هجري"></div></div>
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">بداية إرسال الاسئلة والإستفسارات ( ميلادي )</label><input type="date" class="form-control" :min="today" :max="form.offers_deadline || undefined" v-model="form.questions_start"><small v-if="form.errors.questions_start" class="red-color d-block">{{ form.errors.questions_start }}</small></div></div>
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">بداية إرسال الاسئلة والإستفسارات ( هجري )</label><input type="text" class="form-control" v-model="form.questions_start_hijri" placeholder="هجري"></div></div>
+                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">التاريخ المتوقع للترسية ( ميلادي )</label><input type="date" class="form-control" :min="form.offers_deadline || today" v-model="form.expected_award_date" @change="syncHijri('expected_award_date','expected_award_date_hijri')"><small v-if="form.errors.expected_award_date" class="red-color d-block">{{ form.errors.expected_award_date }}</small></div></div>
+                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">التاريخ المتوقع للترسية ( هجري )</label><input type="text" class="form-control" v-model="form.expected_award_date_hijri" placeholder="يُملأ تلقائيًا من الميلادي" readonly></div></div>
+                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">بداية إرسال الاسئلة والإستفسارات ( ميلادي )</label><input type="date" class="form-control" :min="today" :max="form.offers_deadline || undefined" v-model="form.questions_start" @change="syncHijri('questions_start','questions_start_hijri')"><small v-if="form.errors.questions_start" class="red-color d-block">{{ form.errors.questions_start }}</small></div></div>
+                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">بداية إرسال الاسئلة والإستفسارات ( هجري )</label><input type="text" class="form-control" v-model="form.questions_start_hijri" placeholder="يُملأ تلقائيًا من الميلادي" readonly></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label>فترة التوقف</label><input type="number" class="form-control" v-model="form.standstill_period_days" min="0"></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label>اقصى مدة للاجابة على الاستفسارات</label><input type="number" class="form-control" v-model="form.max_answer_duration_days" min="0"></div></div>
                                 </div>
                             </div>
 
-                            <!-- مجال التصنيف وموقع التنفيذ -->
                             <div class="border_box p_24 white_bc mb_32">
                                 <h3 class="fs-16 dark-color d-flex align-items-center gap-4 mb_24">
                                     <div class="img_box dark_gray_bc d-flex align-items-center justify-content-center"><img :src="img('details-map.png')" alt="" class="m-0"></div>

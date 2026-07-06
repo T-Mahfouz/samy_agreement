@@ -92,13 +92,11 @@ class TenderController extends Controller
 
     private function validateData(Request $request): array
     {
-        // اليوم بتوقيت الرياض (التطبيق يعمل بـ UTC) لمنع التواريخ المنتهية
         $today = now('Asia/Riyadh')->toDateString();
 
         return $request->validate([
             'type' => ['required', 'in:general,direct_purchase,limited'],
             'name' => ['required', 'string', 'max:255'],
-            // docx أصله zip → mimes:docx يفشل على كثير من السيرفرات؛ نتحقق بالامتداد + أنواع محتوى واسعة
             'booklet_file' => ['nullable', 'file', 'max:10240'],
             'brochure_price' => ['nullable', 'numeric', 'min:0'],
             'contract_duration_months' => ['nullable', 'integer', 'min:1'],
@@ -110,7 +108,6 @@ class TenderController extends Controller
             'final_guarantee_value' => ['nullable', 'numeric', 'min:0'],
             'final_guarantee_address' => ['nullable', 'string', 'max:255'],
             'purpose' => ['nullable', 'string'],
-            // المواعيد: يجب ألا تكون في الماضي وأن تكون مرتبة منطقيًا
             'questions_start' => ['nullable', 'date', 'after_or_equal:'.$today, 'before_or_equal:offers_deadline'],
             'questions_start_hijri' => ['nullable', 'string', 'max:20'],
             'questions_deadline' => ['nullable', 'date', 'after_or_equal:'.$today, 'before_or_equal:offers_deadline'],

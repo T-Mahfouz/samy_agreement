@@ -8,9 +8,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EnsureUserIsAdmin
 {
-    /**
-     * تتأكد أن المستخدم مسجّل دخول ودوره "أدمن".
-     */
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();

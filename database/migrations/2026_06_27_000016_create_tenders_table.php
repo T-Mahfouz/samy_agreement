@@ -8,33 +8,28 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // المنافسات (Tenders)
         Schema::create('tenders', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('client_id')->constrained('client_profiles')->cascadeOnDelete(); // صاحب المنافسة
+            $table->foreignId('client_id')->constrained('client_profiles')->cascadeOnDelete();
 
-            // أرقام التعريف
-            $table->string('tender_no')->unique();      // رقم المنافسة
-            $table->string('reference_no')->nullable(); // الرقم المرجعي
-            $table->string('serial_no')->unique();      // رقم تسلسلي فريد يولّده النظام
+            $table->string('tender_no')->unique();
+            $table->string('reference_no')->nullable();
+            $table->string('serial_no')->unique();
 
-            // البيانات الأساسية
-            $table->string('name');                     // اسم المنافسة
-            $table->enum('type', ['general', 'direct_purchase', 'limited'])->default('general'); // نوع المنافسة
-            $table->foreignId('category_id')->nullable()->constrained('categories')->nullOnDelete();    // القطاع الرئيسي
-            $table->foreignId('subcategory_id')->nullable()->constrained('categories')->nullOnDelete(); // النشاط الفرعي
-            $table->text('purpose')->nullable();             // الغرض منها
-            $table->text('activity_description')->nullable(); // نشاط المنافسة (وصف)
-            $table->string('submission_method')->nullable(); // طريقة تقديم العروض
-            $table->boolean('includes_supply_items')->default(false); // تشمل بنود توريد
+            $table->string('name');
+            $table->enum('type', ['general', 'direct_purchase', 'limited'])->default('general');
+            $table->foreignId('category_id')->nullable()->constrained('categories')->nullOnDelete();
+            $table->foreignId('subcategory_id')->nullable()->constrained('categories')->nullOnDelete();
+            $table->text('purpose')->nullable();
+            $table->text('activity_description')->nullable();
+            $table->string('submission_method')->nullable();
+            $table->boolean('includes_supply_items')->default(false);
 
-            // كراسة الشروط والعقد
-            $table->string('brochure_file')->nullable();        // ملف كراسة الشروط
-            $table->decimal('brochure_price', 12, 2)->default(0); // قيمة الكراسة (0 = مجانية)
-            $table->unsignedInteger('contract_duration_months')->nullable(); // مدة العقد بالشهور
-            $table->boolean('insurance_required')->default(false); // التأمين
+            $table->string('brochure_file')->nullable();
+            $table->decimal('brochure_price', 12, 2)->default(0);
+            $table->unsignedInteger('contract_duration_months')->nullable();
+            $table->boolean('insurance_required')->default(false);
 
-            // الضمانات
             $table->boolean('initial_guarantee_required')->default(false);
             $table->decimal('initial_guarantee_value', 12, 2)->nullable();
             $table->string('initial_guarantee_address')->nullable();
@@ -42,14 +37,11 @@ return new class extends Migration
             $table->decimal('final_guarantee_value', 12, 2)->nullable();
             $table->string('final_guarantee_address')->nullable();
 
-            // فترات ومدد
-            $table->unsignedInteger('standstill_period_days')->nullable();    // فترة التوقف
-            $table->unsignedInteger('max_answer_duration_days')->nullable();  // أقصى مدة للإجابة على الاستفسارات
+            $table->unsignedInteger('standstill_period_days')->nullable();
+            $table->unsignedInteger('max_answer_duration_days')->nullable();
 
-            // العمولة (نسبة % - افتراضي 1%)
             $table->decimal('commission_rate', 5, 2)->default(1.00);
 
-            // التواريخ (ميلادي + هجري)
             $table->date('questions_start')->nullable();
             $table->string('questions_start_hijri')->nullable();
             $table->date('questions_deadline')->nullable();
@@ -66,9 +58,8 @@ return new class extends Migration
             $table->string('works_start_hijri')->nullable();
             $table->time('works_start_time')->nullable();
 
-            // الحالة والترسية
             $table->enum('status', ['active', 'examination', 'awarding', 'awarded', 'cancelled'])->default('active')->index();
-            $table->unsignedBigInteger('awarded_offer_id')->nullable()->index(); // العرض الفائز (FK منطقي بدون قيد - لتفادي الدورة)
+            $table->unsignedBigInteger('awarded_offer_id')->nullable()->index();
 
             $table->timestamp('published_at')->nullable();
             $table->timestamps();

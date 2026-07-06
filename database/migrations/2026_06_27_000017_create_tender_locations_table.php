@@ -8,7 +8,6 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // أماكن تنفيذ المنافسة (عدة مناطق/مدن) - صف لكل (منافسة + مدينة)
         Schema::create('tender_locations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('tender_id')->constrained('tenders')->cascadeOnDelete();

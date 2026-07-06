@@ -16,6 +16,8 @@ class BookletController extends Controller
     {
         $provider = $request->user()->providerProfile;
 
+        abort_unless($provider && $provider->status === 'approved', 403);
+
         $payments = Payment::query()
             ->where('provider_id', $provider?->id)
             ->where('type', 'brochure_fee')
@@ -56,7 +58,6 @@ class BookletController extends Controller
 
         $ext = pathinfo($tender->brochure_file, PATHINFO_EXTENSION);
         if (! $ext) {
-            // ملفات قديمة خُزّنت بلا امتداد → استنتج من نوع المحتوى
             $ext = match (Storage::disk('public')->mimeType($tender->brochure_file)) {
                 'application/pdf' => 'pdf',
                 'application/msword' => 'doc',

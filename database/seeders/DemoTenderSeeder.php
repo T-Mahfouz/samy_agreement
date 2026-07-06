@@ -19,7 +19,6 @@ class DemoTenderSeeder extends Seeder
 {
     public function run(): void
     {
-        // عميل تجريبي
         $clientUser = User::firstOrCreate(
             ['email' => 'client@agreement.com'],
             ['name' => 'شركة مساس المحدودة', 'username' => 'masas', 'role' => 'client', 'status' => 'active', 'password' => Hash::make('password'), 'email_verified_at' => now()]
@@ -29,7 +28,6 @@ class DemoTenderSeeder extends Seeder
             ['company_name' => 'شركة مساس المحدودة', 'mobile' => '0512345678', 'bank_name' => 'بنك الراجحي', 'bank_beneficiary_name' => 'شركة مساس المحدودة', 'bank_iban' => 'SA4420000001234567891234']
         );
 
-        // مورّد تجريبي (لعرض بعض العروض)
         $providerUser = User::firstOrCreate(
             ['email' => 'provider@agreement.com'],
             ['name' => 'شركة عندنا للمشاريع', 'username' => 'andana', 'role' => 'provider', 'status' => 'active', 'password' => Hash::make('password'), 'email_verified_at' => now()]
@@ -42,7 +40,6 @@ class DemoTenderSeeder extends Seeder
         $cats = Category::whereNull('parent_id')->with('children')->get();
         $regions = Region::with('cities')->get();
 
-        // اربط المورّد التجريبي بقطاع رئيسي حتى يرى منافسات قطاعه فقط
         if (! $provider->main_category_id && $cats->isNotEmpty()) {
             $provider->update([
                 'main_category_id' => $cats->first()->id,
@@ -99,14 +96,12 @@ class DemoTenderSeeder extends Seeder
                 ]
             );
 
-            // كراسة الشروط (ملف فعلي يرفعه العميل عادةً) — حتى يعمل تحميلها للمورّد بعد السداد
             if (! $tender->brochure_file) {
                 $bookletPath = "brochures/booklet-{$tender->id}.pdf";
                 Storage::disk('public')->put($bookletPath, $this->samplePdf('كراسة الشروط'));
                 $tender->update(['brochure_file' => $bookletPath]);
             }
 
-            // أماكن تنفيذ (منطقتان لكل منافسة)
             if ($tender->locations()->count() === 0) {
                 foreach ($regions->take(2) as $region) {
                     foreach ($region->cities->take(2) as $city) {
@@ -115,7 +110,6 @@ class DemoTenderSeeder extends Seeder
                 }
             }
 
-            // عرض تجريبي (مع ملفّي عرض فعليّين على القرص الخاص ليعمل التحميل)
             if ($tender->offers()->count() === 0 && in_array($s['status'], ['examination', 'awarding', 'awarded'], true)) {
                 $techPath = "offers/{$tender->id}/technical-sample.pdf";
                 $finPath = "offers/{$tender->id}/financial-sample.pdf";
@@ -137,7 +131,6 @@ class DemoTenderSeeder extends Seeder
         }
     }
 
-    /** ملف PDF بسيط صالح للفتح، يحمل عنوانًا. */
     private function samplePdf(string $title): string
     {
         $text = "BT /F1 18 Tf 60 120 Td ($title) Tj ET";

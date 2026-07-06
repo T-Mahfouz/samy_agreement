@@ -3,8 +3,6 @@ import { type SharedData } from '@/types';
 import { router, usePage } from '@inertiajs/vue3';
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
-// إشعار عائم (toast) يوضّح نتيجة أي نموذج: نجاح أخضر / خطأ أحمر.
-// يعمل في صفحات Slice (بدون Tailwind) وصفحات الأدمن معًا.
 const page = usePage<SharedData>();
 
 interface Toast {
@@ -33,7 +31,6 @@ const push = (type: 'success' | 'error', text?: string | null) => {
     timers.set(id, setTimeout(() => dismiss(id), 6000));
 };
 
-// رسائل الفلاش من الخادم (back()->with('success'|'error', ...))
 watch(
     () => [page.props.flash?.success, page.props.flash?.error] as const,
     ([s, e]) => {
@@ -43,7 +40,6 @@ watch(
     { immediate: true },
 );
 
-// أخطاء التحقق (422) — رسالة عامة واضحة، والتفاصيل تظهر بجانب كل حقل
 let stopError: (() => void) | null = null;
 onMounted(() => {
     stopError = router.on('error', (event: { detail?: { errors?: Record<string, unknown> } }) => {

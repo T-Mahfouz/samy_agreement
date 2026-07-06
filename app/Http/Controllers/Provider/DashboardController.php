@@ -17,7 +17,6 @@ class DashboardController extends Controller
         $provider = $request->user()->providerProfile;
         $providerId = $provider?->id;
 
-        // دفعات العمولة لهذا المورّد مفهرسة بالعرض
         $commissionPayments = Payment::query()
             ->where('provider_id', $providerId)
             ->where('type', 'commission')

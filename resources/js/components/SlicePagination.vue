@@ -3,7 +3,6 @@ import { Link } from '@inertiajs/vue3';
 
 defineProps<{ links: { url: string | null; label: string; active: boolean }[] }>();
 
-// أرقام الصفحات فقط (نتجاهل أزرار السابق/التالي زي تصميم Slice)
 const isPageLink = (label: string) =>
     !['Previous', 'Next', '&laquo;', '&raquo;', 'pagination.previous', 'pagination.next'].some((s) => label.includes(s));
 </script>

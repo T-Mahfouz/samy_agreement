@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Countdown from '@/components/Countdown.vue';
 import FileTypeHint from '@/components/FileTypeHint.vue';
 import PublicLayout from '@/layouts/PublicLayout.vue';
 import { type SharedData } from '@/types';
@@ -27,9 +28,16 @@ interface Tender {
     locations: Loc[]; offers: Offer[]; awarded_offer?: Offer | null;
 }
 
-const props = defineProps<{ tender: Tender; offersCount: number; offersOpen: boolean }>();
+const props = defineProps<{ tender: Tender; offersCount: number; offersOpen: boolean; canApply: boolean }>();
 const page = usePage<SharedData>();
 const isProvider = computed(() => page.props.auth?.user?.role === 'provider');
+
+const applyHint = computed(() => {
+    const u = page.props.auth?.user;
+    if (!u) return 'سجّل دخولك كمورّد لطلب الكراسة أو تقديم عرض';
+    if (u.role !== 'provider') return 'متاح لمقدّمي الخدمة فقط';
+    return 'غير متاح — تأكد من اعتماد حسابك وأن المنافسة ضمن تخصصك';
+});
 
 const img = (n: string) => `/slice/assets/images/${n}`;
 const typeLabels: Record<string, string> = { general: 'منافسة عامة', direct_purchase: 'شراء مباشر', limited: 'محدودة' };
@@ -39,8 +47,9 @@ const t = props.tender;
 void t;
 
 const num = (v: string | null) => (v ? Number(v).toLocaleString('en') : '—');
+const durationLabels: Record<number, string> = { 3: '3 شهور', 6: '6 شهور', 12: '1 سنة', 24: '2 سنة', 36: '3 سنة', 48: '4 سنة', 60: '5 سنة' };
+const duration = (m: number | null) => (m ? (durationLabels[m] ?? `${m} شهر`) : '—');
 
-// dropdowns / modals
 const awardOpen = ref(false);
 const awardRef = ref<HTMLElement | null>(null);
 onClickOutside(awardRef, () => (awardOpen.value = false));
@@ -48,7 +57,6 @@ const descExpanded = ref(false);
 const bookOpen = ref(false);
 const proposalOpen = ref(false);
 
-// تقديم عرض (للمورّد)
 const proposalForm = useForm<{ technical_file: File | null; financial_file: File | null; financial_value: string; declaration_accepted: boolean }>({
     technical_file: null, financial_file: null, financial_value: '', declaration_accepted: false,
 });
@@ -57,14 +65,12 @@ const submitProposal = () => proposalForm.post(`/provider/tenders/${props.tender
     forceFormData: true, preserveScroll: true, onSuccess: () => { proposalOpen.value = false; proposalForm.reset(); },
 });
 
-// سداد قيمة كراسة الشروط (للمورّد)
 const bookForm = useForm<{ receipt_file: File | null }>({ receipt_file: null });
 const onBookFile = (e: Event) => { bookForm.receipt_file = (e.target as HTMLInputElement).files?.[0] ?? null; };
 const submitBook = () => bookForm.post(`/provider/tenders/${props.tender.id}/brochure-payment`, {
     forceFormData: true, preserveScroll: true, onSuccess: () => { bookOpen.value = false; bookForm.reset(); },
 });
 
-// group locations by region
 const groupedLocations = computed(() => {
     const map: Record<string, string[]> = {};
     for (const l of t.locations) {
@@ -82,7 +88,6 @@ const groupedLocations = computed(() => {
         <section class="tender_details">
             <div class="container">
                 <div class="row">
-                    <!-- Title + award results -->
                     <div class="col-12 d-flex align-items-center justify-content-between flex-wrap mb_48 pb_24 border_bottom position-relative">
                         <h3 class="fs-32 main-color fw-bold d-inline-flex align-items-center gap-4">
                             <div class="img_box main_bc d-flex align-items-center justify-content-center">
@@ -157,7 +162,6 @@ const groupedLocations = computed(() => {
                         </div>
                     </div>
 
-                    <!-- Basic data -->
                     <div class="col-lg-6">
                         <h3 class="fs-16 main-color d-inline-flex align-items-center gap-4 mb_24">
                             <div class="img_box main_bc d-flex align-items-center justify-content-center"><img :src="img('details-file.png')" alt=""></div>
@@ -204,7 +208,7 @@ const groupedLocations = computed(() => {
                                 <li class="d-flex align-items-center w-100">
                                     <div class="me_16 img_box gray-bc d-inline-flex align-items-center justify-content-center"><img :src="img('details-arrow.png')" alt=""></div>
                                     <div class="d-flex align-items-center justify-content-between group_h3 w-100">
-                                        <h3 class="fs-16 m-0 main-color d-inline-flex align-items-center gap-4"><span class="dark-color">مدة العقد : </span>{{ tender.contract_duration_months ? tender.contract_duration_months + ' شهر' : '—' }}</h3>
+                                        <h3 class="fs-16 m-0 main-color d-inline-flex align-items-center gap-4"><span class="dark-color">مدة العقد : </span>{{ duration(tender.contract_duration_months) }}</h3>
                                         <h3 class="fs-16 m-0 main-color d-inline-flex align-items-center gap-4"><span class="dark-color"> التأمين : </span>{{ tender.insurance_required ? 'مطلوب' : 'غير مطلوب' }}</h3>
                                     </div>
                                 </li>
@@ -230,7 +234,6 @@ const groupedLocations = computed(() => {
                         </div>
                     </div>
 
-                    <!-- Dates -->
                     <div class="col-lg-6">
                         <h3 class="fs-16 second-color d-inline-flex align-items-center gap-4 mb_24">
                             <div class="img_box second_bc d-flex align-items-center justify-content-center"><img :src="img('details-clock.png')" alt=""></div>
@@ -268,8 +271,8 @@ const groupedLocations = computed(() => {
                                         <p class="d-flex align-items-end justify-content-between gap-4 mb-0"><span class="fs-14 fw-bold dark-color">{{ tender.questions_start ?? '—' }} <br> {{ tender.questions_start_hijri }}</span></p>
                                     </li>
                                     <li class="p_12">
-                                        <div class="title d-flex align-items-center gap-2 mb_24 fs-14"><div class="img_box d-flex align-items-center justify-content-center border-0"><img :src="img('clock.png')" alt=""></div>تاريخ بدء الإعمال والخدمات</div>
-                                        <p class="d-flex align-items-end justify-content-between gap-4 mb-0"><span class="fs-14 fw-bold dark-color">{{ tender.works_start ?? '—' }} <br> {{ tender.works_start_hijri }}</span><span class="fs-14 red-color">{{ tender.works_start_time?.slice(0,5) }}</span></p>
+                                        <div class="title d-flex align-items-center gap-2 mb_24 fs-14"><div class="img_box d-flex align-items-center justify-content-center border-0"><img :src="img('clock-black.png')" alt=""></div>الوقت المتبقي لتقديم العروض</div>
+                                        <p class="d-flex align-items-end gap-4 mb-0"><span class="fs-14 fw-bold main-color"><Countdown :deadline="tender.offers_deadline" :time="tender.offers_deadline_time" /></span></p>
                                     </li>
                                 </ul>
                                 <li class="d-flex align-items-center w-100 mt_24">
@@ -288,7 +291,6 @@ const groupedLocations = computed(() => {
                         </div>
                     </div>
 
-                    <!-- Classification + location + actions -->
                     <div class="col-12">
                         <div class="d-flex align-items-center justify-content-between mb_24 title_with_action">
                             <h3 class="fs-16 dark-color d-inline-flex align-items-center gap-4 m-0">
@@ -296,12 +298,20 @@ const groupedLocations = computed(() => {
                                 مجال التصنيف وموقع التنفيذ والتقديم
                             </h3>
                             <div class="d-flex align-items-center gap-4">
-                                <a v-if="offersOpen" href="#" class="main_btn d-flex align-items-center gap-2" role="button" @click.prevent="bookOpen = true">
-                                    <img :src="img('details-pdf.png')" alt=""> كراسة الشروط
-                                </a>
-                                <a v-if="offersOpen" href="#" class="main_btn second d-flex align-items-center gap-2" role="button" @click.prevent="proposalOpen = true">
-                                    <img :src="img('details-edit.png')" alt=""> تقديم عروض
-                                </a>
+                                <template v-if="offersOpen">
+                                    <a v-if="canApply" href="#" class="main_btn d-flex align-items-center gap-2" role="button" @click.prevent="bookOpen = true">
+                                        <img :src="img('details-pdf.png')" alt=""> كراسة الشروط
+                                    </a>
+                                    <span v-else class="main_btn d-flex align-items-center gap-2" style="opacity:.55; cursor:not-allowed;" :title="applyHint">
+                                        <img :src="img('details-pdf.png')" alt=""> كراسة الشروط
+                                    </span>
+                                    <a v-if="canApply" href="#" class="main_btn second d-flex align-items-center gap-2" role="button" @click.prevent="proposalOpen = true">
+                                        <img :src="img('details-edit.png')" alt=""> تقديم عروض
+                                    </a>
+                                    <span v-else class="main_btn second d-flex align-items-center gap-2" style="opacity:.55; cursor:not-allowed;" :title="applyHint">
+                                        <img :src="img('details-edit.png')" alt=""> تقديم عروض
+                                    </span>
+                                </template>
                                 <span v-else class="main_btn second d-flex align-items-center gap-2" style="opacity:.55; cursor:not-allowed;" title="انتهى آخر موعد لتقديم العروض">
                                     <img :src="img('details-edit.png')" alt=""> انتهى التقديم
                                 </span>
@@ -351,7 +361,6 @@ const groupedLocations = computed(() => {
             </div>
         </section>
 
-        <!-- Tender book (كراسة الشروط) modal -->
         <teleport to="body">
             <div v-if="bookOpen" class="modal-backdrop fade show"
                 style="position:fixed; inset:0; background-color:rgba(0,0,0,.5); z-index:99999;" @click="bookOpen = false"></div>
@@ -402,7 +411,6 @@ const groupedLocations = computed(() => {
             </div>
         </teleport>
 
-        <!-- Proposal modal -->
         <teleport to="body">
             <div v-if="proposalOpen" class="modal-backdrop fade show"
                 style="position:fixed; inset:0; background-color:rgba(0,0,0,.5); z-index:99999;" @click="proposalOpen = false"></div>
@@ -419,7 +427,7 @@ const groupedLocations = computed(() => {
                                 <h3 class="fs-18 dark-color m-0">تقديم عرض للمنافسة</h3>
                             </div>
                             <form class="tender_book_modal__form" @submit.prevent="submitProposal">
-                                <div class="row align-items-end">
+                                <div class="row align-items-start">
                                     <div class="col-lg-4 col-md-6 col-sm-6 mb_24 mb-md-0">
                                         <label class="d-flex align-items-center gap-2 fs-16 main-color mb_12"><img :src="img('details-arrow.png')" alt="" class="m-0">ملف العرض الفني</label>
                                         <label class="tender_book_modal__upload mb-0"><input type="file" class="sr-only" accept=".pdf,.doc,.docx,image/jpeg,image/png,image/webp" :disabled="!isProvider" @change="onProposalFile('technical_file', $event)"><span class="tender_book_modal__upload-inner d-flex align-items-center gap-4"><span class="dark-color fs-14">{{ proposalForm.technical_file?.name || 'ارفاق الملف' }}</span></span></label>
