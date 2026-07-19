@@ -36,8 +36,6 @@ Route::middleware(['auth', 'role:client'])->prefix('client')->name('client.')->g
     Route::get('dashboard', [\App\Http\Controllers\Client\DashboardController::class, 'index'])->name('dashboard');
     Route::get('tenders/create', [\App\Http\Controllers\Client\TenderController::class, 'create'])->name('tenders.create');
     Route::post('tenders', [\App\Http\Controllers\Client\TenderController::class, 'store'])->name('tenders.store');
-    Route::get('tenders/{tender}/edit', [\App\Http\Controllers\Client\TenderController::class, 'edit'])->name('tenders.edit');
-    Route::put('tenders/{tender}', [\App\Http\Controllers\Client\TenderController::class, 'update'])->name('tenders.update');
     Route::put('tenders/{tender}/cancel', [\App\Http\Controllers\Client\DashboardController::class, 'cancelTender'])->name('tenders.cancel');
     Route::get('tenders/{tender}/offers', [\App\Http\Controllers\Client\OfferReviewController::class, 'index'])->name('tenders.offers');
     Route::put('tenders/{tender}/offers', [\App\Http\Controllers\Client\OfferReviewController::class, 'update'])->name('tenders.offers.update');

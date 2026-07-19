@@ -47,7 +47,6 @@ interface Tender {
     status: string;
     client?: { id: number; company_name: string; mobile: string | null; bank_name: string | null; bank_iban: string | null } | null;
     category?: { id: number; name: string } | null;
-    subcategory?: { id: number; name: string } | null;
     locations: Location[];
     offers: Offer[];
     contract?: { id: number; status: string } | null;
@@ -77,7 +76,6 @@ const info = [
     { label: 'الرقم التسلسلي', value: props.tender.serial_no },
     { label: 'النوع', value: typeLabels[props.tender.type] },
     { label: 'القطاع', value: props.tender.category?.name },
-    { label: 'النشاط الفرعي', value: props.tender.subcategory?.name },
     { label: 'قيمة كراسة الشروط', value: Number(props.tender.brochure_price) > 0 ? `${Number(props.tender.brochure_price).toLocaleString('ar-EG')} ر.س` : 'مجانية' },
     { label: 'مدة العقد (شهور)', value: props.tender.contract_duration_months },
     { label: 'نسبة العمولة', value: `${props.tender.commission_rate}%` },

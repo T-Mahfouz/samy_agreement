@@ -13,6 +13,7 @@ const props = defineProps<{
 
 const img = (n: string) => `/slice/assets/images/${n}`;
 const offerFile = (id: number, type: 'technical' | 'financial') => `/offers/${id}/files/${type}`;
+const offerPreview = (id: number, type: 'technical' | 'financial') => `/offers/${id}/files/${type}?inline=1`;
 const num = (v: string | null) => (v ? Number(v).toLocaleString('en', { minimumFractionDigits: 2 }) : '—');
 
 const initialChecks: Record<number, string> = {};
@@ -70,7 +71,13 @@ const submit = () => form
                                         <tbody>
                                             <tr v-for="o in offers" :key="o.id">
                                                 <td class="dark-color big-cell">{{ o.provider }}</td>
-                                                <td><a v-if="o.technical_file" :href="offerFile(o.id, 'technical')" class="second-color"><u>تحميل الملف</u></a><span v-else class="dark-color">—</span></td>
+                                                <td>
+                                                    <template v-if="o.technical_file">
+                                                        <a :href="offerPreview(o.id, 'technical')" target="_blank" rel="noopener" class="second-color me_8"><u>معاينة</u></a>
+                                                        <a :href="offerFile(o.id, 'technical')" class="second-color"><u>تحميل</u></a>
+                                                    </template>
+                                                    <span v-else class="dark-color">—</span>
+                                                </td>
                                                 <td class="dark-color big-cell">
                                                     <div class="d-inline-flex align-items-start gap-2 text-right">
                                                         <label class="offer_exam__choice d-inline-flex align-items-center gap-2 mb-0">
@@ -84,7 +91,10 @@ const submit = () => form
                                                     </div>
                                                 </td>
                                                 <td>
-                                                    <a v-if="form.checks[o.id] === 'matching' && o.financial_file" :href="offerFile(o.id, 'financial')" class="second-color"><u>تحميل الملف</u></a>
+                                                    <template v-if="form.checks[o.id] === 'matching' && o.financial_file">
+                                                        <a :href="offerPreview(o.id, 'financial')" target="_blank" rel="noopener" class="second-color me_8"><u>معاينة</u></a>
+                                                        <a :href="offerFile(o.id, 'financial')" class="second-color"><u>تحميل</u></a>
+                                                    </template>
                                                     <span v-else class="dark-color">—</span>
                                                 </td>
                                                 <td class="dark-color ltr">

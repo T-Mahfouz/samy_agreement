@@ -25,7 +25,14 @@ const sign = () => { if (confirm('بالموافقة أنت توقّع هذا ا
                 <div class="row justify-content-center">
                     <div class="col-lg-10">
                         <div class="contract_item border_box white_bc p_24">
-                            <h3 class="fw-bold fs-32 dark-color text-center mb_48">عقد إتفاق ألكترونى</h3>
+                            <h3 class="fw-bold fs-32 dark-color text-center mb_32">عقد إتفاق ألكترونى</h3>
+
+                            <div class="contract_intro dark-color mb_48" dir="rtl" style="line-height: 2.1; text-align: justify;">
+                                <p class="mb_16">صدر هذا العقد الإلكتروني استنادًا إلى المنافسة المطروحة من المستفيد ({{ contract.client_name ?? '—' }}) والعرض المقدم من المورد ({{ contract.provider_name ?? '—' }}) الذي تمت الترسية عليه، ويُعد توثيقًا للاتفاق المبرم بين المستفيد والمورد.</p>
+                                <p class="mb_16">وتُعد وثائق المنافسة والعرض المقبول وقرار الترسية جزءًا لا يتجزأ من هذا العقد ومكملة لأحكامه.</p>
+                                <p class="mb_0">ويقر الطرفان بأن اعتماد هذا العقد إلكترونيًا يُعد موافقة نهائية وملزمة على جميع أحكامه، وتترتب عليه الآثار النظامية المقررة للعقود الإلكترونية وفق الأنظمة المعمول بها في المملكة العربية السعودية.</p>
+                            </div>
+
                             <form @submit.prevent>
                                 <div class="row">
                                     <div class="col-md-6"><div class="form-group"><label class="dark-color">إسم المستفيد</label><input class="form-control border-0" type="text" readonly :value="contract.client_name ?? ''"></div></div>

@@ -53,7 +53,6 @@ const publishTitle = (date: string | null) => {
 
 const form = reactive({
     category_id: props.filters.category_id ?? '',
-    subcategory_id: props.filters.subcategory_id ?? '',
     reference_no: props.filters.reference_no ?? '',
     tender_no: props.filters.tender_no ?? '',
     name: props.filters.name ?? '',
@@ -71,7 +70,6 @@ const calendarType = ref<'gregorian' | 'hijri'>('gregorian');
 const hijriCaption = (d: string) => (d ? `${hijri(d)} هـ` : '');
 
 const rootCategories = computed(() => props.categories.filter((c) => c.parent_id === null));
-const subCategories = computed(() => props.categories.filter((c) => String(c.parent_id) === String(form.category_id)));
 
 const apply = () => {
     const params = Object.fromEntries(Object.entries(form).filter(([, v]) => v !== ''));
@@ -84,18 +82,16 @@ const resetFilters = () => {
     const firstCat = rootCategories.value[0]?.id;
     Object.assign(form, {
         category_id: firstCat ? String(firstCat) : '',
-        subcategory_id: '', reference_no: '', tender_no: '', name: '',
+        reference_no: '', tender_no: '', name: '',
         type: '', status: '', region_id: '', price: '', published: '',
         deadline_from: '', deadline_to: '', sort: '',
     });
     calendarType.value = 'gregorian';
-    apply();
 };
 
 const isActiveCat = (id: number) => String(form.category_id) === String(id);
 const selectCategory = (id: number) => {
     form.category_id = String(id);
-    form.subcategory_id = '';
     apply();
 };
 
@@ -303,18 +299,9 @@ const progress = (t: Tender) => {
                                 <div class="col-12 col-lg-3 col-md-6 col-sm-6">
                                     <div class="form-group">
                                         <label>القطاع الرئيسي</label>
-                                        <select class="form-control" v-model="form.category_id" @change="form.subcategory_id = ''">
+                                        <select class="form-control" v-model="form.category_id">
                                             <option value="">اختر القطاع الرئيسي</option>
                                             <option v-for="c in rootCategories" :key="c.id" :value="c.id">{{ c.name }}</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-12 col-lg-3 col-md-6 col-sm-6">
-                                    <div class="form-group">
-                                        <label>النشاط الفرعي</label>
-                                        <select class="form-control" v-model="form.subcategory_id">
-                                            <option value="">اختر النشاط الفرعي</option>
-                                            <option v-for="c in subCategories" :key="c.id" :value="c.id">{{ c.name }}</option>
                                         </select>
                                     </div>
                                 </div>
@@ -408,9 +395,9 @@ const progress = (t: Tender) => {
                                         </div>
                                         <div class="d-flex align-items-center gap-2 date_group">
                                             <label class="m-0 flex-shrink-0">من</label>
-                                            <input type="date" class="form-control" aria-label="من" v-model="form.deadline_from" style="flex:1; min-width:0;">
+                                            <input type="date" dir="ltr" class="form-control" aria-label="من" v-model="form.deadline_from" style="flex:1; min-width:0;">
                                             <label class="m-0 flex-shrink-0">إلى</label>
-                                            <input type="date" class="form-control" aria-label="إلى" v-model="form.deadline_to" style="flex:1; min-width:0;">
+                                            <input type="date" dir="ltr" class="form-control" aria-label="إلى" v-model="form.deadline_to" style="flex:1; min-width:0;">
                                         </div>
                                         <div v-if="calendarType === 'hijri' && (form.deadline_from || form.deadline_to)" class="fs-14 dark-color mt_8">
                                             <span v-if="form.deadline_from">من: {{ hijriCaption(form.deadline_from) }}</span>

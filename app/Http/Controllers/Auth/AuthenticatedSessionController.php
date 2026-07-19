@@ -24,6 +24,13 @@ class AuthenticatedSessionController extends Controller
         ]);
     }
 
+    public function createAdmin(Request $request): Response
+    {
+        return Inertia::render('auth/AdminLogin', [
+            'status' => $request->session()->get('status'),
+        ]);
+    }
+
     /**
      * Handle an incoming authentication request.
      */
@@ -41,11 +48,13 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $wasAdmin = $request->user()?->isAdmin() ?? false;
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect($wasAdmin ? '/admin/login' : '/');
     }
 }

@@ -29,6 +29,14 @@ class OfferController extends Controller
         if (! $tender->offersOpen()) {
             return back()->with('error', 'انتهت فترة تقديم العروض لهذه المنافسة.');
         }
+        $obtainedDocument = Payment::where('tender_id', $tender->id)
+            ->where('provider_id', $provider->id)
+            ->where('type', 'brochure_fee')
+            ->where('status', 'paid')
+            ->exists();
+        if (! $obtainedDocument) {
+            return back()->with('error', 'يجب الحصول على كراسة الشروط (بعد اعتماد سدادها) قبل تقديم العرض.');
+        }
         if ($tender->offers()->where('provider_id', $provider->id)->exists()) {
             return back()->with('error', 'لقد قدّمت عرضًا على هذه المنافسة بالفعل.');
         }

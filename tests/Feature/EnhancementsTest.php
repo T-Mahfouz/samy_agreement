@@ -69,16 +69,14 @@ it('gates brochure download on a paid payment', function () {
     $this->actingAs($pu)->get('/provider/booklets')->assertOk();
 });
 
-it('lets a client edit their tender', function () {
+it('no longer allows a client to edit their tender', function () {
     ['cu' => $cu, 'tender' => $tender] = party();
 
-    $this->actingAs($cu)->get("/client/tenders/{$tender->id}/edit")->assertOk();
+    $this->actingAs($cu)->get("/client/tenders/{$tender->id}/edit")->assertNotFound();
     $this->actingAs($cu)->put("/client/tenders/{$tender->id}", [
         'type' => 'limited', 'name' => 'اسم معدّل',
-        'offers_deadline' => now()->addDays(10)->toDateString(),
-    ])->assertRedirect('/client/dashboard');
-    expect($tender->fresh()->name)->toBe('اسم معدّل');
-    expect($tender->fresh()->type)->toBe('limited');
+    ])->assertNotFound();
+    expect($tender->fresh()->name)->toBe('منافسة');
 });
 
 it('serves a payment receipt to the owning provider but blocks another provider', function () {

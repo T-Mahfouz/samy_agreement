@@ -32,6 +32,7 @@ const props = defineProps<{
 
 const img = (n: string) => `/slice/assets/images/${n}`;
 const offerFile = (id: number, type: 'technical' | 'financial') => `/offers/${id}/files/${type}`;
+const offerPreview = (id: number, type: 'technical' | 'financial') => `/offers/${id}/files/${type}?inline=1`;
 const num = (v: string | number | null) => (v != null && v !== '' ? Number(v).toLocaleString('en', { minimumFractionDigits: 2 }) : '—');
 const price = (v: string) => (Number(v) > 0 ? `${Number(v).toLocaleString('en')} ريال` : 'مجانية');
 const durationLabels: Record<number, string> = { 3: '3 شهور', 6: '6 شهور', 12: '1 سنة', 24: '2 سنة', 36: '3 سنة', 48: '4 سنة', 60: '5 سنة' };
@@ -155,8 +156,10 @@ const submitCommission = () => {
                                                 <td class="text-center main-color"><Countdown :deadline="o.tender.offers_deadline" :time="o.tender.offers_deadline_time" /></td>
                                                 <td class="text-center">
                                                     <div class="d-flex flex-column align-items-center gap-2">
-                                                        <a v-if="o.technical_file" :href="offerFile(o.id, 'technical')" class="second-color"><u>تحميل العرض الفني</u></a>
-                                                        <a v-if="o.financial_file" :href="offerFile(o.id, 'financial')" class="second-color"><u>تحميل العرض المالي</u></a>
+                                                        <a v-if="o.technical_file" :href="offerPreview(o.id, 'technical')" target="_blank" rel="noopener" class="second-color"><u>معاينة الفني</u></a>
+                                                        <a v-if="o.technical_file" :href="offerFile(o.id, 'technical')" class="second-color"><u>تحميل الفني</u></a>
+                                                        <a v-if="o.financial_file" :href="offerPreview(o.id, 'financial')" target="_blank" rel="noopener" class="second-color"><u>معاينة المالي</u></a>
+                                                        <a v-if="o.financial_file" :href="offerFile(o.id, 'financial')" class="second-color"><u>تحميل المالي</u></a>
                                                         <span v-if="!o.technical_file && !o.financial_file" class="dark-color fs-14">—</span>
                                                     </div>
                                                 </td>
@@ -199,8 +202,10 @@ const submitCommission = () => {
                                             <tbody><tr>
                                                 <td class="text-center">
                                                     <div class="d-flex flex-column align-items-center gap-2">
-                                                        <a v-if="o.technical_file" :href="offerFile(o.id, 'technical')" class="contract_award_table__link">تحميل العرض الفني</a>
-                                                        <a v-if="o.financial_file" :href="offerFile(o.id, 'financial')" class="contract_award_table__link">تحميل العرض المالي</a>
+                                                        <a v-if="o.technical_file" :href="offerPreview(o.id, 'technical')" target="_blank" rel="noopener" class="contract_award_table__link">معاينة الفني</a>
+                                                        <a v-if="o.technical_file" :href="offerFile(o.id, 'technical')" class="contract_award_table__link">تحميل الفني</a>
+                                                        <a v-if="o.financial_file" :href="offerPreview(o.id, 'financial')" target="_blank" rel="noopener" class="contract_award_table__link">معاينة المالي</a>
+                                                        <a v-if="o.financial_file" :href="offerFile(o.id, 'financial')" class="contract_award_table__link">تحميل المالي</a>
                                                         <span v-if="!o.technical_file && !o.financial_file" class="dark-color">—</span>
                                                     </div>
                                                 </td>

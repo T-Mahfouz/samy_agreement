@@ -44,7 +44,6 @@ class TenderController extends Controller
         $tender->load([
             'client:id,company_name,mobile,bank_name,bank_iban',
             'category:id,name',
-            'subcategory:id,name',
             'locations.region:id,name',
             'locations.city:id,name',
             'offers.provider:id,company_name',

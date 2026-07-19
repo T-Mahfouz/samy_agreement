@@ -6,6 +6,7 @@ import AdminLayout from '@/layouts/AdminLayout.vue';
 import { type BreadcrumbItem, type Paginated } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { Check, FileText, X } from 'lucide-vue-next';
+import { ref } from 'vue';
 
 interface Payment {
     id: number;
@@ -23,8 +24,10 @@ interface Payment {
 
 const props = defineProps<{
     payments: Paginated<Payment>;
-    filters: { status: string | null; type: string | null };
+    filters: { status: string | null; type: string | null; q: string | null };
     counts: { all: number; pending: number; paid: number; rejected: number };
+    typeCounts: { brochure_fee: number; commission: number };
+    totalAmount: number;
 }>();
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -48,19 +51,25 @@ const tabs = [
     { key: 'rejected', label: 'مرفوضة', countKey: 'rejected' as const },
 ];
 
-const buildHref = (params: { status?: string; type?: string }) => {
-    const q = new URLSearchParams();
-    const status = params.status !== undefined ? params.status : props.filters.status ?? '';
+const typeTabs = [
+    { key: 'brochure_fee', label: 'مدفوعات كراسة الشروط', countKey: 'brochure_fee' as const },
+    { key: 'commission', label: 'مدفوعات عمولة المنصة', countKey: 'commission' as const },
+];
+
+const buildHref = (params: { status?: string; type?: string; q?: string }) => {
+    const qp = new URLSearchParams();
     const type = params.type !== undefined ? params.type : props.filters.type ?? '';
-    if (status) q.set('status', status);
-    if (type) q.set('type', type);
-    const s = q.toString();
+    const status = params.status !== undefined ? params.status : props.filters.status ?? '';
+    const search = params.q !== undefined ? params.q : props.filters.q ?? '';
+    if (type) qp.set('type', type);
+    if (status) qp.set('status', status);
+    if (search) qp.set('q', search);
+    const s = qp.toString();
     return '/admin/payments' + (s ? `?${s}` : '');
 };
 
-const onTypeChange = (e: Event) => {
-    router.get(buildHref({ type: (e.target as HTMLSelectElement).value }), {}, { preserveScroll: true, preserveState: true });
-};
+const searchTerm = ref(props.filters.q ?? '');
+const doSearch = () => router.get(buildHref({ q: searchTerm.value }), {}, { preserveScroll: true, preserveState: true });
 
 const setStatus = (p: Payment, status: string) => {
     const verb = status === 'paid' ? 'اعتماد' : 'رفض';
@@ -81,6 +90,18 @@ const setStatus = (p: Payment, status: string) => {
                 <p class="text-sm text-muted-foreground">مراجعة إيصالات التحويل واعتمادها</p>
             </div>
 
+            <div class="flex flex-wrap gap-2 border-b">
+                <Link
+                    v-for="tt in typeTabs"
+                    :key="tt.key"
+                    :href="buildHref({ type: tt.key, status: '', q: '' })"
+                    class="-mb-px border-b-2 px-4 py-2 text-sm font-medium transition-colors"
+                    :class="(filters.type ?? 'brochure_fee') === tt.key ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'"
+                >
+                    {{ tt.label }} <span class="text-xs opacity-80">({{ typeCounts[tt.countKey] }})</span>
+                </Link>
+            </div>
+
             <div class="flex flex-wrap items-center justify-between gap-3">
                 <div class="flex flex-wrap gap-2">
                     <Link
@@ -93,15 +114,15 @@ const setStatus = (p: Payment, status: string) => {
                         {{ t.label }} <span class="mr-1 text-xs opacity-80">({{ counts[t.countKey] }})</span>
                     </Link>
                 </div>
-                <select
-                    :value="filters.type ?? ''"
-                    @change="onTypeChange"
-                    class="h-9 rounded-md border border-input bg-transparent px-3 text-sm shadow-sm"
-                >
-                    <option value="">كل الأنواع</option>
-                    <option value="brochure_fee">كراسة الشروط</option>
-                    <option value="commission">عمولة المنصة</option>
-                </select>
+                <form class="flex items-center gap-2" @submit.prevent="doSearch">
+                    <input v-model="searchTerm" type="search" placeholder="بحث باسم المورد أو رقم المنافسة" class="h-9 w-64 max-w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-sm" />
+                    <Button type="submit" variant="outline" size="sm">بحث</Button>
+                </form>
+            </div>
+
+            <div class="flex items-center gap-2 text-sm">
+                <span class="text-muted-foreground">إجمالي القيمة (حسب التصفية الحالية):</span>
+                <span class="font-bold">{{ Number(totalAmount).toLocaleString('ar-EG') }} ر.س</span>
             </div>
 
             <Card>
@@ -110,7 +131,6 @@ const setStatus = (p: Payment, status: string) => {
                     <table class="w-full min-w-[760px] text-sm">
                         <thead>
                             <tr class="border-b text-right text-xs text-muted-foreground">
-                                <th class="p-3 font-medium">النوع</th>
                                 <th class="p-3 font-medium">المورد</th>
                                 <th class="p-3 font-medium">المنافسة</th>
                                 <th class="p-3 font-medium">القيمة</th>
@@ -122,7 +142,6 @@ const setStatus = (p: Payment, status: string) => {
                         </thead>
                         <tbody>
                             <tr v-for="p in payments.data" :key="p.id" class="border-b last:border-0 hover:bg-accent/40">
-                                <td class="p-3 font-medium">{{ typeLabels[p.type] }}</td>
                                 <td class="p-3 text-muted-foreground">{{ p.provider?.company_name ?? '—' }}</td>
                                 <td class="p-3 text-muted-foreground">{{ p.tender?.tender_no ?? '—' }}</td>
                                 <td class="p-3 font-medium">{{ Number(p.amount).toLocaleString('ar-EG') }} ر.س</td>
@@ -143,7 +162,7 @@ const setStatus = (p: Payment, status: string) => {
                                 </td>
                             </tr>
                             <tr v-if="payments.data.length === 0">
-                                <td colspan="8" class="p-8 text-center text-muted-foreground">لا توجد مدفوعات</td>
+                                <td colspan="7" class="p-8 text-center text-muted-foreground">لا توجد مدفوعات</td>
                             </tr>
                         </tbody>
                     </table>

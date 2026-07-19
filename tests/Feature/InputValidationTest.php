@@ -73,6 +73,7 @@ it('accepts a valid Saudi IBAN and numeric mobile on client registration', funct
 it('accepts an IBAN pasted with spaces and stores it normalized', function () {
     $this->post('/register', [
         'role' => 'client', 'facility_name' => 'منشأة',
+        'mobile' => '0512345678',
         'iban' => 'SA44 2000 0001 2345 6789 1234',
         'email' => 'spaced@test.com', 'password' => 'password123', 'password_confirmation' => 'password123',
     ])->assertRedirect('/client/dashboard');
@@ -84,6 +85,7 @@ it('accepts an IBAN pasted with spaces and stores it normalized', function () {
 it('accepts a Saudi IBAN that contains letters', function () {
     $this->post('/register', [
         'role' => 'client', 'facility_name' => 'منشأة',
+        'mobile' => '0512345678',
         'iban' => 'SA442000000123456789ABCD',
         'email' => 'alnum@test.com', 'password' => 'password123', 'password_confirmation' => 'password123',
     ])->assertRedirect('/client/dashboard');

@@ -16,6 +16,9 @@ onBeforeUnmount(() => {
 const page = usePage<SharedData>();
 const user = computed(() => page.props.auth?.user);
 
+const appUrl = computed(() => ((page.props as Record<string, unknown>).appUrl as string) ?? '/');
+const appDomain = computed(() => appUrl.value.replace(/^https?:\/\//, '').replace(/\/+$/, ''));
+
 const img = (name: string) => `/slice/assets/images/${name}`;
 
 const loginRef = ref<HTMLElement | null>(null);
@@ -172,8 +175,8 @@ const submitLogin = () => loginForm.post('/login', { onError: () => (loginForm.p
                             <img :src="img('logo.png')" alt="AGREEMENT" class="m-0">
                         </Link>
                         <div class="copy text-center w-100">
-                            <p class="mb_0 fs-14">جميع الحقوق محفوظة © منصة اتفاق AGREEMENT</p>
-                            <p class="mb_0 fs-14 ltr">www.domainname.com</p>
+                            <p class="mb_0 fs-14">جميع الحقوق محفوظة © اتفاق AGREEMENT</p>
+                            <p class="mb_0 fs-14 ltr"><a :href="appUrl" class="dark-color" target="_blank" rel="noopener">{{ appDomain }}</a></p>
                         </div>
                     </div>
                 </div>

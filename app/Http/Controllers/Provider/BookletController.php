@@ -67,6 +67,9 @@ class BookletController extends Controller
         }
         $filename = 'كراسة-الشروط-'.$tender->tender_no.($ext ? '.'.$ext : '');
 
-        return Storage::disk('public')->download($tender->brochure_file, $filename);
+        // ?inline=1 يعرض الكراسة داخل المتصفح (معاينة)؛ الافتراضي تنزيل. الصلاحيات واحدة في الحالتين.
+        return $request->boolean('inline')
+            ? Storage::disk('public')->response($tender->brochure_file, $filename)
+            : Storage::disk('public')->download($tender->brochure_file, $filename);
     }
 }

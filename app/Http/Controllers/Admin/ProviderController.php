@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\ErasesRecords;
 use App\Http\Controllers\Controller;
 use App\Models\Notification;
 use App\Models\ProviderProfile;
@@ -12,6 +13,8 @@ use Inertia\Response;
 
 class ProviderController extends Controller
 {
+    use ErasesRecords;
+
     public function index(Request $request): Response
     {
         $status = $request->query('status');
@@ -40,7 +43,6 @@ class ProviderController extends Controller
         $provider->load([
             'user:id,name,username,email,phone,status',
             'mainCategory:id,name',
-            'subCategory:id,name',
             'documents:id,provider_id,doc_type,file_path,uploaded_at',
         ]);
 
@@ -82,5 +84,13 @@ class ProviderController extends Controller
         }
 
         return back()->with('success', $label);
+    }
+
+    public function destroy(ProviderProfile $provider): RedirectResponse
+    {
+        $name = $provider->company_name;
+        $this->eraseProvider($provider);
+
+        return redirect('/admin/providers')->with('success', "تم حذف المورّد «{$name}» وحسابه نهائيًا.");
     }
 }

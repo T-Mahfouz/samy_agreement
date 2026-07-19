@@ -43,7 +43,6 @@ class DemoTenderSeeder extends Seeder
         if (! $provider->main_category_id && $cats->isNotEmpty()) {
             $provider->update([
                 'main_category_id' => $cats->first()->id,
-                'sub_category_id' => $cats->first()->children->first()?->id,
             ]);
         }
 
@@ -70,7 +69,6 @@ class DemoTenderSeeder extends Seeder
                     'name' => $s['name'],
                     'type' => $s['type'],
                     'category_id' => $cat->id,
-                    'subcategory_id' => $sub?->id,
                     'purpose' => 'يهدف هذا المشروع إلى '.$s['name'].' وفق المواصفات الفنية المعتمدة وضمان الجودة طوال فترة العقد.',
                     'activity_description' => 'المنافسة تخص نشاط '.($sub?->name ?? $cat->name).'.',
                     'submission_method' => 'ملف للعرض الفني وملف للعرض المالي',

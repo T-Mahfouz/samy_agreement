@@ -51,14 +51,13 @@ const form = useForm<Record<string, any>>({
     questions_start: v('questions_start'), questions_start_hijri: v('questions_start_hijri'),
     standstill_period_days: v('standstill_period_days', 4),
     max_answer_duration_days: v('max_answer_duration_days', 5),
-    category_id: v('category_id'), subcategory_id: v('subcategory_id'),
+    category_id: v('category_id'),
     locations: (t.locations && t.locations.length ? t.locations.map((l: any) => ({ region_id: l.region_id, city_id: l.city_id })) : [{ region_id: '', city_id: '' }]),
     includes_supply_items: !!v('includes_supply_items', false),
     activity_description: v('activity_description'),
 });
 
 const rootCategories = computed(() => props.categories.filter((c) => c.parent_id === null));
-const subCategories = computed(() => props.categories.filter((c) => String(c.parent_id) === String(form.category_id)));
 const citiesFor = (regionId: any) => props.regions.find((r) => String(r.id) === String(regionId))?.cities ?? [];
 const addLocation = () => form.locations.push({ region_id: '', city_id: '' });
 const removeLocation = (i: number) => { if (form.locations.length > 1) form.locations.splice(i, 1); };
@@ -223,17 +222,17 @@ const submit = () => {
                                     العناوين والمواعيد للمنافسة
                                 </h3>
                                 <div class="row">
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">آخر موعد لإستلام الإستفسارات ( ميلادي )</label><input type="date" class="form-control" :min="today" :max="form.offers_deadline || undefined" v-model="form.questions_deadline" @change="syncHijri('questions_deadline','questions_deadline_hijri')"><small v-if="form.errors.questions_deadline" class="red-color d-block">{{ form.errors.questions_deadline }}</small></div></div>
+                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">آخر موعد لإستلام الإستفسارات ( ميلادي )</label><input type="date" dir="ltr" class="form-control" :min="today" :max="form.offers_deadline || undefined" v-model="form.questions_deadline" @change="syncHijri('questions_deadline','questions_deadline_hijri')"><small v-if="form.errors.questions_deadline" class="red-color d-block">{{ form.errors.questions_deadline }}</small></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">آخر موعد لإستلام الإستفسارات ( هجري )</label><input type="text" class="form-control" v-model="form.questions_deadline_hijri" placeholder="يُملأ تلقائيًا من الميلادي" readonly></div></div>
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">آخر موعد لتقديم العروض ( ميلادي ) <span class="red-color">*</span></label><input type="date" class="form-control" :min="today" v-model="form.offers_deadline" @change="syncHijri('offers_deadline','offers_deadline_hijri')"><small v-if="form.errors.offers_deadline" class="red-color d-block">{{ form.errors.offers_deadline }}</small></div></div>
+                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">آخر موعد لتقديم العروض ( ميلادي ) <span class="red-color">*</span></label><input type="date" dir="ltr" class="form-control" :min="today" v-model="form.offers_deadline" @change="syncHijri('offers_deadline','offers_deadline_hijri')"><small v-if="form.errors.offers_deadline" class="red-color d-block">{{ form.errors.offers_deadline }}</small></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">آخر موعد لتقديم العروض ( هجري )</label><input type="text" class="form-control" v-model="form.offers_deadline_hijri" placeholder="يُملأ تلقائيًا من الميلادي" readonly></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">وقت آخر موعد لتقديم العروض</label><input type="time" class="form-control" v-model="form.offers_deadline_time"></div></div>
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">تاريخ فتح العروض ( ميلادي )</label><input type="date" class="form-control" :min="form.offers_deadline || today" v-model="form.offers_open" @change="syncHijri('offers_open','offers_open_hijri')"><small v-if="form.errors.offers_open" class="red-color d-block">{{ form.errors.offers_open }}</small></div></div>
+                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">تاريخ فتح العروض ( ميلادي )</label><input type="date" dir="ltr" class="form-control" :min="form.offers_deadline || today" v-model="form.offers_open" @change="syncHijri('offers_open','offers_open_hijri')"><small v-if="form.errors.offers_open" class="red-color d-block">{{ form.errors.offers_open }}</small></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">تاريخ فتح العروض ( هجري )</label><input type="text" class="form-control" v-model="form.offers_open_hijri" placeholder="يُملأ تلقائيًا من الميلادي" readonly></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">وقت فتح العروض</label><input type="time" class="form-control" v-model="form.offers_open_time"></div></div>
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">التاريخ المتوقع للترسية ( ميلادي )</label><input type="date" class="form-control" :min="form.offers_deadline || today" v-model="form.expected_award_date" @change="syncHijri('expected_award_date','expected_award_date_hijri')"><small v-if="form.errors.expected_award_date" class="red-color d-block">{{ form.errors.expected_award_date }}</small></div></div>
+                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">التاريخ المتوقع للترسية ( ميلادي )</label><input type="date" dir="ltr" class="form-control" :min="form.offers_deadline || today" v-model="form.expected_award_date" @change="syncHijri('expected_award_date','expected_award_date_hijri')"><small v-if="form.errors.expected_award_date" class="red-color d-block">{{ form.errors.expected_award_date }}</small></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">التاريخ المتوقع للترسية ( هجري )</label><input type="text" class="form-control" v-model="form.expected_award_date_hijri" placeholder="يُملأ تلقائيًا من الميلادي" readonly></div></div>
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">بداية إرسال الاسئلة والإستفسارات ( ميلادي )</label><input type="date" class="form-control" :min="today" :max="form.offers_deadline || undefined" v-model="form.questions_start" @change="syncHijri('questions_start','questions_start_hijri')"><small v-if="form.errors.questions_start" class="red-color d-block">{{ form.errors.questions_start }}</small></div></div>
+                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">بداية إرسال الاسئلة والإستفسارات ( ميلادي )</label><input type="date" dir="ltr" class="form-control" :min="today" :max="form.offers_deadline || undefined" v-model="form.questions_start" @change="syncHijri('questions_start','questions_start_hijri')"><small v-if="form.errors.questions_start" class="red-color d-block">{{ form.errors.questions_start }}</small></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label class="d-flex align-items-center gap-2 mb_12">بداية إرسال الاسئلة والإستفسارات ( هجري )</label><input type="text" class="form-control" v-model="form.questions_start_hijri" placeholder="يُملأ تلقائيًا من الميلادي" readonly></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label>فترة التوقف</label><input type="number" class="form-control" v-model="form.standstill_period_days" min="0"></div></div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6"><div class="form-group"><label>اقصى مدة للاجابة على الاستفسارات</label><input type="number" class="form-control" v-model="form.max_answer_duration_days" min="0"></div></div>
@@ -249,18 +248,9 @@ const submit = () => {
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6">
                                         <div class="form-group">
                                             <label>القطاع الرئيسي</label>
-                                            <select class="form-control" v-model="form.category_id" @change="form.subcategory_id = ''">
+                                            <select class="form-control" v-model="form.category_id">
                                                 <option value="" disabled>اختر القطاع الرئيسي</option>
                                                 <option v-for="c in rootCategories" :key="c.id" :value="c.id">{{ c.name }}</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6">
-                                        <div class="form-group">
-                                            <label>النشاط الفرعي</label>
-                                            <select class="form-control" v-model="form.subcategory_id">
-                                                <option value="" disabled>اختر النشاط الفرعي</option>
-                                                <option v-for="c in subCategories" :key="c.id" :value="c.id">{{ c.name }}</option>
                                             </select>
                                         </div>
                                     </div>

@@ -75,6 +75,8 @@ class PublicPageController extends Controller
             'message' => ['required', 'string'],
         ], [], [
             'full_name' => 'الاسم بالكامل',
+            'mobile' => 'رقم الجوال',
+            'email' => 'البريد الإلكتروني',
             'message' => 'تفاصيل الرسالة',
         ]);
 

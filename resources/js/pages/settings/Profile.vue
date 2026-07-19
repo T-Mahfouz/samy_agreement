@@ -1,30 +1,15 @@
 <script setup lang="ts">
-import { TransitionRoot } from '@headlessui/vue';
-import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
-
-import DeleteUser from '@/components/DeleteUser.vue';
-import HeadingSmall from '@/components/HeadingSmall.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import AppLayout from '@/layouts/AppLayout.vue';
-import SettingsLayout from '@/layouts/settings/Layout.vue';
+import AdminLayout from '@/layouts/AdminLayout.vue';
 import { type BreadcrumbItem, type SharedData, type User } from '@/types';
-
-interface Props {
-    mustVerifyEmail: boolean;
-    status?: string;
-    className?: string;
-}
-
-defineProps<Props>();
+import { Head, useForm, usePage } from '@inertiajs/vue3';
 
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Profile settings',
-        href: '/settings/profile',
-    },
+    { title: 'لوحة التحكم', href: '/admin/dashboard' },
+    { title: 'الملف الشخصي', href: '/settings/profile' },
 ];
 
 const page = usePage<SharedData>();
@@ -35,77 +20,46 @@ const form = useForm({
     email: user.email,
 });
 
-const submit = () => {
-    form.patch(route('profile.update'), {
-        preserveScroll: true,
-    });
-};
+const submit = () => form.patch(route('profile.update'), { preserveScroll: true });
 </script>
 
 <template>
-    <AppLayout :breadcrumbs="breadcrumbs">
-        <Head title="Profile settings" />
+    <Head title="الملف الشخصي" />
 
-        <SettingsLayout>
-            <div class="flex flex-col space-y-6">
-                <HeadingSmall title="Profile information" description="Update your name and email address" />
+    <AdminLayout :breadcrumbs="breadcrumbs">
+        <div class="flex h-full flex-1 flex-col gap-4 p-4 md:p-6">
+            <div>
+                <h1 class="text-2xl font-bold">الملف الشخصي</h1>
+                <p class="text-sm text-muted-foreground">تحديث اسمك وبريدك الإلكتروني</p>
+            </div>
 
-                <form @submit.prevent="submit" class="space-y-6">
+            <div class="max-w-xl rounded-xl border bg-card p-6">
+                <form @submit.prevent="submit" class="flex flex-col gap-5">
                     <div class="grid gap-2">
-                        <Label for="name">Name</Label>
-                        <Input id="name" class="mt-1 block w-full" v-model="form.name" required autocomplete="name" placeholder="Full name" />
-                        <InputError class="mt-2" :message="form.errors.name" />
+                        <Label for="name">الاسم</Label>
+                        <Input id="name" v-model="form.name" required autocomplete="name" placeholder="الاسم الكامل" />
+                        <InputError :message="form.errors.name" />
                     </div>
 
                     <div class="grid gap-2">
-                        <Label for="email">Email address</Label>
-                        <Input
-                            id="email"
-                            type="email"
-                            class="mt-1 block w-full"
-                            v-model="form.email"
-                            required
-                            autocomplete="username"
-                            placeholder="Email address"
-                        />
-                        <InputError class="mt-2" :message="form.errors.email" />
-                    </div>
-
-                    <div v-if="mustVerifyEmail && !user.email_verified_at">
-                        <p class="mt-2 text-sm text-neutral-800">
-                            Your email address is unverified.
-                            <Link
-                                :href="route('verification.send')"
-                                method="post"
-                                as="button"
-                                class="focus:outline-hidden rounded-md text-sm text-neutral-600 underline hover:text-neutral-900 focus:ring-2 focus:ring-offset-2"
-                            >
-                                Click here to re-send the verification email.
-                            </Link>
-                        </p>
-
-                        <div v-if="status === 'verification-link-sent'" class="mt-2 text-sm font-medium text-green-600">
-                            A new verification link has been sent to your email address.
-                        </div>
+                        <Label for="email">البريد الإلكتروني</Label>
+                        <Input id="email" type="email" v-model="form.email" required dir="ltr" placeholder="name@example.com" />
+                        <InputError :message="form.errors.email" />
                     </div>
 
                     <div class="flex items-center gap-4">
-                        <Button :disabled="form.processing">Save</Button>
-
-                        <TransitionRoot
-                            :show="form.recentlySuccessful"
-                            enter="transition ease-in-out"
-                            enter-from="opacity-0"
-                            leave="transition ease-in-out"
-                            leave-to="opacity-0"
+                        <Button type="submit" :disabled="form.processing">حفظ</Button>
+                        <transition
+                            enter-active-class="transition ease-in-out"
+                            enter-from-class="opacity-0"
+                            leave-active-class="transition ease-in-out"
+                            leave-to-class="opacity-0"
                         >
-                            <p class="text-sm text-neutral-600">Saved.</p>
-                        </TransitionRoot>
+                            <p v-if="form.recentlySuccessful" class="text-sm font-medium text-emerald-600">تم الحفظ بنجاح ✓</p>
+                        </transition>
                     </div>
                 </form>
             </div>
-
-            <DeleteUser />
-        </SettingsLayout>
-    </AppLayout>
+        </div>
+    </AdminLayout>
 </template>

@@ -33,7 +33,6 @@ class PublicTenderController extends Controller
             ->when($request->filled('tender_no'), fn ($query) => $query->whereRaw("tender_no LIKE ? ESCAPE '!'", [$this->likeContains($request->input('tender_no'))]))
             ->when($request->filled('name'), fn ($query) => $query->whereRaw("name LIKE ? ESCAPE '!'", [$this->likeContains($request->input('name'))]))
             ->when($categoryId, fn ($query) => $query->where('category_id', $categoryId))
-            ->when($request->filled('subcategory_id'), fn ($query) => $query->where('subcategory_id', $request->integer('subcategory_id')))
             ->when($request->filled('type'), fn ($query) => $query->where('type', $request->string('type')))
             ->when(
                 in_array($request->query('status'), ['active', 'examination', 'awarding', 'awarded'], true),
@@ -82,7 +81,7 @@ class PublicTenderController extends Controller
             'tenders' => $tenders,
             'filters' => array_merge(
                 $request->only([
-                    'reference_no', 'tender_no', 'name', 'subcategory_id', 'type', 'status',
+                    'reference_no', 'tender_no', 'name', 'type', 'status',
                     'region_id', 'price', 'published', 'deadline_from', 'deadline_to', 'sort',
                 ]),
                 ['category_id' => $categoryId],
@@ -110,7 +109,6 @@ class PublicTenderController extends Controller
         $tender->load([
             'client:id,company_name,bank_name,bank_beneficiary_name,bank_iban',
             'category:id,name',
-            'subcategory:id,name',
             'locations.region:id,name',
             'locations.city:id,name',
             'offers' => fn ($q) => $q->where(fn ($w) => $w->where('technical_check', '!=', 'pending')->orWhere('is_awarded', true)),

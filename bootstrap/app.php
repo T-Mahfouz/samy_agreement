@@ -24,6 +24,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => EnsureUserIsAdmin::class,
             'role' => EnsureUserHasRole::class,
         ]);
+
+        $middleware->redirectGuestsTo(fn ($request) => $request->is('admin/*') ? '/admin/login' : '/login');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

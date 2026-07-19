@@ -107,7 +107,7 @@ it('rejects offers_open before the offers deadline', function () {
     ])->assertSessionHasErrors('offers_open');
 });
 
-it('lets a client cancel their own tender but not others', function () {
+it('lets a client cancel (hard-delete) their own tender but not others', function () {
     $user = clientUser();
     $tender = Tender::create([
         'client_id' => $user->clientProfile->id,
@@ -119,7 +119,8 @@ it('lets a client cancel their own tender but not others', function () {
     ]);
 
     $this->actingAs($user)->put("/client/tenders/{$tender->id}/cancel")->assertRedirect();
-    expect($tender->fresh()->status)->toBe('cancelled');
+    expect(Tender::find($tender->id))->toBeNull();
 
     $this->actingAs($user)->put("/client/tenders/{$other->id}/cancel")->assertForbidden();
+    expect(Tender::find($other->id))->not->toBeNull();
 });

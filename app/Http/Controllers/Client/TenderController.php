@@ -49,39 +49,6 @@ class TenderController extends Controller
         return redirect('/client/dashboard')->with('success', 'تم نشر المنافسة بنجاح.');
     }
 
-    public function edit(Request $request, Tender $tender): Response
-    {
-        $this->authorizeOwner($request, $tender);
-        $tender->load('locations');
-
-        return Inertia::render('client/CreateTender', array_merge($this->formData(), [
-            'tender' => array_merge($tender->toArray(), [
-                'locations' => $tender->locations->map(fn ($l) => [
-                    'region_id' => $l->region_id,
-                    'city_id' => $l->city_id,
-                ])->values()->all(),
-            ]),
-        ]));
-    }
-
-    public function update(Request $request, Tender $tender): RedirectResponse
-    {
-        $this->authorizeOwner($request, $tender);
-
-        $data = $this->validateData($request);
-        $fields = $this->mapFields($data);
-
-        if ($request->hasFile('booklet_file')) {
-            $fields['brochure_file'] = $this->storeUpload($request->file('booklet_file'), 'brochures');
-        }
-
-        $tender->update($fields);
-        $tender->locations()->delete();
-        $this->syncLocation($tender, $data);
-
-        return redirect('/client/dashboard')->with('success', 'تم تحديث المنافسة بنجاح.');
-    }
-
     private function formData(): array
     {
         return [
@@ -123,7 +90,6 @@ class TenderController extends Controller
             'standstill_period_days' => ['nullable', 'integer', 'min:0'],
             'max_answer_duration_days' => ['nullable', 'integer', 'min:0'],
             'category_id' => ['nullable', 'exists:categories,id'],
-            'subcategory_id' => ['nullable', 'exists:categories,id'],
             'locations' => ['array'],
             'locations.*.region_id' => ['required_with:locations', 'exists:regions,id'],
             'locations.*.city_id' => ['required_with:locations', 'exists:cities,id'],
@@ -160,7 +126,6 @@ class TenderController extends Controller
             'name' => $data['name'],
             'type' => $data['type'],
             'category_id' => $data['category_id'] ?? null,
-            'subcategory_id' => $data['subcategory_id'] ?? null,
             'purpose' => $data['purpose'] ?? null,
             'activity_description' => $data['activity_description'] ?? null,
             'includes_supply_items' => $data['includes_supply_items'] ?? false,
@@ -200,11 +165,6 @@ class TenderController extends Controller
                 ]);
             }
         }
-    }
-
-    private function authorizeOwner(Request $request, Tender $tender): void
-    {
-        abort_unless($tender->client_id === $request->user()->clientProfile?->id, 403);
     }
 
     private function uniqueNumber(string $column, string $prefix): string

@@ -43,6 +43,7 @@ it('lets an approved provider submit an offer', function () {
     Storage::fake('local');
     $user = providerUser('approved');
     $tender = aTender();
+    Payment::create(['type' => 'brochure_fee', 'tender_id' => $tender->id, 'provider_id' => $user->providerProfile->id, 'paid_to' => 'client', 'amount' => 500, 'status' => 'paid']);
 
     $this->actingAs($user)->post("/provider/tenders/{$tender->id}/offer", [
         'technical_file' => UploadedFile::fake()->create('t.pdf', 50, 'application/pdf'),

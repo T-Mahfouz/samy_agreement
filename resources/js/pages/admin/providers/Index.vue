@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { type BreadcrumbItem, type Paginated } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Check, Eye, X } from 'lucide-vue-next';
+import { Check, Eye, Trash2, X } from 'lucide-vue-next';
 
 interface Provider {
     id: number;
@@ -47,6 +47,12 @@ const setStatus = (p: Provider, status: string) => {
     const verb = status === 'approved' ? 'اعتماد' : 'رفض';
     if (confirm(`${verb} المورّد «${p.company_name}»؟`)) {
         router.put(`/admin/providers/${p.id}`, { status }, { preserveScroll: true });
+    }
+};
+
+const deleteProvider = (p: Provider) => {
+    if (confirm(`⚠️ حذف نهائي\n\nسيتم حذف المورّد «${p.company_name}» وحسابه وكل عروضه ومستنداته ومدفوعاته نهائيًا، ولا يمكن التراجع.\n\nهل أنت متأكد؟`)) {
+        router.delete(`/admin/providers/${p.id}`);
     }
 };
 </script>
@@ -106,6 +112,7 @@ const setStatus = (p: Provider, status: string) => {
                                         <Button variant="ghost" size="icon" as-child><Link :href="`/admin/providers/${p.id}`"><Eye class="size-4" /></Link></Button>
                                         <Button v-if="p.status !== 'approved'" variant="ghost" size="icon" class="text-emerald-600 hover:text-emerald-700" title="اعتماد" @click="setStatus(p, 'approved')"><Check class="size-4" /></Button>
                                         <Button v-if="p.status !== 'rejected'" variant="ghost" size="icon" class="text-red-600 hover:text-red-700" title="رفض" @click="setStatus(p, 'rejected')"><X class="size-4" /></Button>
+                                        <Button variant="ghost" size="icon" class="text-red-700 hover:bg-red-50 hover:text-red-800" title="حذف نهائي" @click="deleteProvider(p)"><Trash2 class="size-4" /></Button>
                                     </div>
                                 </td>
                             </tr>

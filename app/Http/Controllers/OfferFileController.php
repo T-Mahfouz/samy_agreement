@@ -30,6 +30,9 @@ class OfferFileController extends Controller
         $ext = pathinfo($path, PATHINFO_EXTENSION);
         $filename = $label.'-'.($offer->tender?->tender_no ?? $offer->id).($ext ? '.'.$ext : '');
 
-        return Storage::disk('local')->download($path, $filename);
+        // ?inline=1 يعرض الملف داخل المتصفح (معاينة)؛ الافتراضي تنزيل. الصلاحيات واحدة في الحالتين.
+        return $request->boolean('inline')
+            ? Storage::disk('local')->response($path, $filename)
+            : Storage::disk('local')->download($path, $filename);
     }
 }

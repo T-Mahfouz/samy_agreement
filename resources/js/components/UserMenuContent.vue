@@ -22,16 +22,16 @@ defineProps<Props>();
     <DropdownMenuGroup>
         <DropdownMenuItem :as-child="true">
             <Link class="block w-full" :href="route('profile.edit')" as="button">
-                <Settings class="mr-2 h-4 w-4" />
-                Settings
+                <Settings class="ms-0 me-2 h-4 w-4" />
+                الملف الشخصي والإعدادات
             </Link>
         </DropdownMenuItem>
     </DropdownMenuGroup>
     <DropdownMenuSeparator />
     <DropdownMenuItem :as-child="true">
         <Link class="block w-full" method="post" :href="route('logout')" as="button">
-            <LogOut class="mr-2 h-4 w-4" />
-            Log out
+            <LogOut class="ms-0 me-2 h-4 w-4" />
+            تسجيل الخروج
         </Link>
     </DropdownMenuItem>
 </template>

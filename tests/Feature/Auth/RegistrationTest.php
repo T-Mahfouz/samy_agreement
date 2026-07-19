@@ -12,6 +12,7 @@ test('new users can register', function () {
     $response = $this->post('/register', [
         'role' => 'client',
         'facility_name' => 'Test User',
+        'mobile' => '0500000000',
         'email' => 'test@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',

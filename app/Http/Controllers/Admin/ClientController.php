@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\ErasesRecords;
 use App\Http\Controllers\Controller;
 use App\Models\ClientProfile;
 use Illuminate\Http\RedirectResponse;
@@ -11,6 +12,8 @@ use Inertia\Response;
 
 class ClientController extends Controller
 {
+    use ErasesRecords;
+
     public function index(): Response
     {
         $clients = ClientProfile::query()
@@ -45,5 +48,13 @@ class ClientController extends Controller
         $client->user?->update(['status' => $data['status']]);
 
         return back()->with('success', $data['status'] === 'active' ? 'تم تفعيل الحساب.' : 'تم تعليق الحساب.');
+    }
+
+    public function destroy(ClientProfile $client): RedirectResponse
+    {
+        $name = $client->company_name;
+        $this->eraseClient($client);
+
+        return redirect('/admin/clients')->with('success', "تم حذف المستفيد «{$name}» وحسابه نهائيًا.");
     }
 }

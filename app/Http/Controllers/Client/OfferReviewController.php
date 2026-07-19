@@ -16,6 +16,7 @@ class OfferReviewController extends Controller
     public function index(Request $request, Tender $tender): Response
     {
         $this->authorizeTender($request, $tender);
+        abort_if(! $tender->offersOpened(), 403, 'لا يمكن فحص العروض قبل موعد ووقت فتح العروض.');
 
         $tender->load(['offers.provider:id,company_name']);
 
@@ -36,6 +37,7 @@ class OfferReviewController extends Controller
     public function update(Request $request, Tender $tender): RedirectResponse
     {
         $this->authorizeTender($request, $tender);
+        abort_if(! $tender->offersOpened(), 403, 'لا يمكن فحص العروض قبل موعد ووقت فتح العروض.');
 
         $data = $request->validate([
             'checks' => ['array'],

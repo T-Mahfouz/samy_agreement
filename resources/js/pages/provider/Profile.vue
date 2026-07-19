@@ -46,7 +46,6 @@ const form = useForm<Record<string, any>>({
     cr_type: props.profile?.cr_type ?? '',
     mobile: props.profile?.mobile ?? '',
     main_category_id: props.profile?.main_category_id ?? '',
-    sub_category_id: props.profile?.sub_category_id ?? '',
     activity_description: props.profile?.activity_description ?? '',
     username: props.username ?? '',
     email: props.email ?? '',
@@ -60,7 +59,6 @@ const form = useForm<Record<string, any>>({
 });
 
 const rootCategories = computed(() => props.categories.filter((c) => c.parent_id === null));
-const subCategories = computed(() => props.categories.filter((c) => String(c.parent_id) === String(form.main_category_id)));
 
 const onFile = (name: string, e: Event) => {
     form[name] = (e.target as HTMLInputElement).files?.[0] ?? null;
@@ -126,7 +124,7 @@ const submit = () => form
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6">
                                         <div class="form-group">
                                             <label class="d-flex align-items-center gap-2 mb_12" for="cr_issue_date">تاريخ إصدار السجل التجاري</label>
-                                            <input type="date" :max="today" class="form-control" id="cr_issue_date" v-model="form.cr_issue_date">
+                                            <input type="date" dir="ltr" :max="today" class="form-control" id="cr_issue_date" v-model="form.cr_issue_date">
                                             <small v-if="form.errors.cr_issue_date" class="red-color d-block">{{ form.errors.cr_issue_date }}</small>
                                         </div>
                                     </div>
@@ -138,7 +136,7 @@ const submit = () => form
                                     </div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6">
                                         <div class="form-group">
-                                            <label for="mobile">رقم الجوال</label>
+                                            <label for="mobile">رقم الجوال <span class="red-color">*</span></label>
                                             <input type="tel" inputmode="numeric" class="form-control" id="mobile" v-model="form.mobile" placeholder="05xxxxxxxx" dir="ltr">
                                             <small v-if="form.errors.mobile" class="red-color d-block">{{ form.errors.mobile }}</small>
                                         </div>
@@ -146,21 +144,11 @@ const submit = () => form
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6">
                                         <div class="form-group">
                                             <label for="main_category_id">القطاع الرئيسي</label>
-                                            <select class="form-control" id="main_category_id" v-model="form.main_category_id" @change="form.sub_category_id = ''">
+                                            <select class="form-control" id="main_category_id" v-model="form.main_category_id">
                                                 <option value="" disabled>اختر القطاع الرئيسي</option>
                                                 <option v-for="c in rootCategories" :key="c.id" :value="c.id">{{ c.name }}</option>
                                             </select>
                                             <small v-if="form.errors.main_category_id" class="red-color d-block">{{ form.errors.main_category_id }}</small>
-                                        </div>
-                                    </div>
-                                    <div class="col-12 col-lg-3 col-md-6 col-sm-6">
-                                        <div class="form-group">
-                                            <label for="sub_category_id">النشاط الفرعي</label>
-                                            <select class="form-control" id="sub_category_id" v-model="form.sub_category_id">
-                                                <option value="" disabled>اختر النشاط الفرعي</option>
-                                                <option v-for="c in subCategories" :key="c.id" :value="c.id">{{ c.name }}</option>
-                                            </select>
-                                            <small v-if="form.errors.sub_category_id" class="red-color d-block">{{ form.errors.sub_category_id }}</small>
                                         </div>
                                     </div>
                                     <div class="col-12 col-lg-3 col-md-6 col-sm-6">

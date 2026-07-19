@@ -51,7 +51,7 @@ class RegisteredUserController extends Controller
 
         $data = $request->validate([
             'facility_name' => ['required', 'string', 'max:255'],
-            'mobile' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\s()-]+$/'],
+            'mobile' => ['required', 'string', 'max:20', 'regex:/^[0-9+\s()-]+$/'],
             'bank_name' => ['nullable', 'string', 'max:255'],
             'beneficiary_name' => ['nullable', 'string', 'max:255'],
             'iban' => ['nullable', 'string', 'max:50'],
@@ -59,6 +59,7 @@ class RegisteredUserController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ], [
+            'mobile.required' => 'رقم الجوال مطلوب.',
             'mobile.regex' => 'رقم الجوال يجب أن يحتوي على أرقام فقط.',
         ], ['facility_name' => 'اسم المنشأة', 'iban' => 'رقم الآيبان', 'mobile' => 'رقم الجوال']);
 
@@ -95,9 +96,8 @@ class RegisteredUserController extends Controller
             'cr_number' => ['nullable', 'string', 'max:20', 'regex:/^[0-9]+$/'],
             'cr_issue_date' => ['nullable', 'date', 'before_or_equal:today'],
             'cr_type' => ['nullable', 'string', 'max:255'],
-            'mobile' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\s()-]+$/'],
+            'mobile' => ['required', 'string', 'max:20', 'regex:/^[0-9+\s()-]+$/'],
             'main_sector' => ['nullable', 'exists:categories,id'],
-            'sub_activity' => ['nullable', 'exists:categories,id'],
             'activity_description' => ['nullable', 'string'],
             'username' => ['nullable', 'string', 'max:255', 'unique:users,username'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
@@ -105,6 +105,7 @@ class RegisteredUserController extends Controller
 
             ...$this->providerDocumentRules(requireCr: true),
         ], [
+            'mobile.required' => 'رقم الجوال مطلوب.',
             'mobile.regex' => 'رقم الجوال يجب أن يحتوي على أرقام فقط.',
             'cr_number.regex' => 'رقم السجل التجاري يجب أن يحتوي على أرقام فقط.',
             'cr_issue_date.before_or_equal' => 'لا يمكن أن يكون تاريخ إصدار السجل التجاري في المستقبل.',
@@ -134,7 +135,6 @@ class RegisteredUserController extends Controller
             'cr_type' => $data['cr_type'] ?? null,
             'mobile' => $data['mobile'] ?? null,
             'main_category_id' => $data['main_sector'] ?? null,
-            'sub_category_id' => $data['sub_activity'] ?? null,
             'activity_description' => $data['activity_description'] ?? null,
             'status' => 'pending',
         ]);

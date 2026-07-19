@@ -9,7 +9,7 @@ class Tender extends Model
 {
     protected $fillable = [
         'client_id', 'tender_no', 'reference_no', 'serial_no',
-        'name', 'type', 'category_id', 'subcategory_id',
+        'name', 'type', 'category_id',
         'purpose', 'activity_description', 'submission_method', 'includes_supply_items',
         'brochure_file', 'brochure_price', 'contract_duration_months', 'insurance_required',
         'initial_guarantee_required', 'initial_guarantee_value', 'initial_guarantee_address',
@@ -63,6 +63,25 @@ class Tender extends Model
         return $deadline === null || $deadline->isFuture();
     }
 
+    public function offersOpeningAt(): ?Carbon
+    {
+        if (! $this->offers_open) {
+            return $this->offersDeadlineAt();
+        }
+
+        $date = Carbon::parse($this->offers_open)->format('Y-m-d');
+        $time = trim((string) $this->offers_open_time);
+
+        return Carbon::parse($date.' '.($time !== '' ? $time : '00:00:00'), 'Asia/Riyadh');
+    }
+
+    public function offersOpened(): bool
+    {
+        $openingAt = $this->offersOpeningAt();
+
+        return $openingAt === null || ! $openingAt->isFuture();
+    }
+
     public function client()
     {
         return $this->belongsTo(ClientProfile::class, 'client_id');
@@ -71,11 +90,6 @@ class Tender extends Model
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_id');
-    }
-
-    public function subcategory()
-    {
-        return $this->belongsTo(Category::class, 'subcategory_id');
     }
 
     public function locations()

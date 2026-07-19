@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import PublicLayout from '@/layouts/PublicLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
+import { nextTick } from 'vue';
 
 defineProps<{ info: { phone: string; whatsapp: string; email: string; support_email: string } }>();
 const img = (n: string) => `/slice/assets/images/${n}`;
@@ -12,7 +13,16 @@ const waLink = (n: string) => {
 };
 
 const form = useForm({ full_name: '', mobile: '', email: '', message: '' });
-const submit = () => form.post('/contact', { preserveScroll: true, onSuccess: () => form.reset() });
+const fieldOrder = ['full_name', 'mobile', 'email', 'message'] as const;
+const submit = () =>
+    form.post('/contact', {
+        preserveScroll: true,
+        onSuccess: () => form.reset(),
+        onError: (errors) => {
+            const first = fieldOrder.find((f) => errors[f]);
+            if (first) nextTick(() => document.getElementById(`contact_${first}`)?.focus());
+        },
+    });
 </script>
 
 <template>
@@ -68,10 +78,10 @@ const submit = () => form.post('/contact', { preserveScroll: true, onSuccess: ()
                                     </h3>
                                     <form @submit.prevent="submit" novalidate>
                                         <div class="row">
-                                            <div class="col-12 col-md-4"><div class="form-group"><label>الإسم بالكامل</label><input type="text" class="form-control" v-model="form.full_name"><small v-if="form.errors.full_name" class="red-color">{{ form.errors.full_name }}</small></div></div>
-                                            <div class="col-12 col-md-4"><div class="form-group"><label>رقم الجوال</label><input type="tel" class="form-control" v-model="form.mobile" dir="rtl"></div></div>
-                                            <div class="col-12 col-md-4"><div class="form-group"><label>البريد الإلكتروني</label><input type="email" class="form-control" v-model="form.email" dir="ltr"></div></div>
-                                            <div class="col-12"><div class="form-group"><label>تفاصيل الرسالة</label><textarea class="form-control" v-model="form.message" rows="6"></textarea><small v-if="form.errors.message" class="red-color">{{ form.errors.message }}</small></div></div>
+                                            <div class="col-12 col-md-4"><div class="form-group"><label for="contact_full_name">الإسم بالكامل</label><input id="contact_full_name" type="text" class="form-control" :class="{ 'is-invalid': form.errors.full_name }" v-model="form.full_name"><small v-if="form.errors.full_name" class="red-color d-block">{{ form.errors.full_name }}</small></div></div>
+                                            <div class="col-12 col-md-4"><div class="form-group"><label for="contact_mobile">رقم الجوال</label><input id="contact_mobile" type="tel" class="form-control" :class="{ 'is-invalid': form.errors.mobile }" v-model="form.mobile" dir="rtl"><small v-if="form.errors.mobile" class="red-color d-block">{{ form.errors.mobile }}</small></div></div>
+                                            <div class="col-12 col-md-4"><div class="form-group"><label for="contact_email">البريد الإلكتروني</label><input id="contact_email" type="email" class="form-control" :class="{ 'is-invalid': form.errors.email }" v-model="form.email" dir="ltr"><small v-if="form.errors.email" class="red-color d-block">{{ form.errors.email }}</small></div></div>
+                                            <div class="col-12"><div class="form-group"><label for="contact_message">تفاصيل الرسالة</label><textarea id="contact_message" class="form-control" :class="{ 'is-invalid': form.errors.message }" v-model="form.message" rows="6"></textarea><small v-if="form.errors.message" class="red-color d-block">{{ form.errors.message }}</small></div></div>
                                         </div>
                                         <div class="text-center mt_8">
                                             <button type="submit" :disabled="form.processing" class="main_btn light m-0 d-inline-flex align-items-center justify-content-center pe_48 pst_48">ارسال</button>
@@ -86,3 +96,9 @@ const submit = () => form.post('/contact', { preserveScroll: true, onSuccess: ()
         </section>
     </PublicLayout>
 </template>
+
+<style scoped>
+.form-control.is-invalid {
+    border-color: #dc3545;
+}
+</style>

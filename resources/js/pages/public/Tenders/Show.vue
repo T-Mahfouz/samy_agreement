@@ -24,7 +24,7 @@ interface Tender {
     expected_award_date: string | null; expected_award_date_hijri: string | null;
     works_start: string | null; works_start_hijri: string | null; works_start_time: string | null;
     client?: { id: number; company_name: string; bank_name: string | null; bank_beneficiary_name: string | null; bank_iban: string | null } | null;
-    category?: { name: string } | null; subcategory?: { name: string } | null;
+    category?: { name: string } | null;
     locations: Loc[]; offers: Offer[]; awarded_offer?: Offer | null;
 }
 
@@ -325,7 +325,6 @@ const groupedLocations = computed(() => {
                                             <div class="me_16 img_box gray-bc d-inline-flex align-items-center justify-content-center"><img :src="img('details-arrow.png')" alt=""></div>
                                             <div class="d-flex align-items-center justify-content-between group_h3 w-100">
                                                 <h3 class="fs-16 m-0 main-color d-inline-flex align-items-center gap-4"><span class="dark-color">القطاع الرئيسي : </span>{{ tender.category?.name ?? '—' }}</h3>
-                                                <h3 class="fs-16 m-0 main-color d-inline-flex align-items-center gap-4"><span class="dark-color">النشاط الفرعي : </span>{{ tender.subcategory?.name ?? '—' }}</h3>
                                             </div>
                                         </li>
                                         <li class="d-flex align-items-center w-100">

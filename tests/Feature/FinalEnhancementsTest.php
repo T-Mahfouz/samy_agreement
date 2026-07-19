@@ -4,6 +4,7 @@ use App\Models\City;
 use App\Models\ClientProfile;
 use App\Models\Notification;
 use App\Models\Offer;
+use App\Models\Payment;
 use App\Models\ProviderProfile;
 use App\Models\Region;
 use App\Models\Tender;
@@ -37,7 +38,8 @@ it('creates a notification for the client when a provider submits an offer', fun
     $client = feClient();
     $tender = Tender::create(['client_id' => $client->clientProfile->id, 'tender_no' => 'N1', 'serial_no' => 'NS1', 'name' => 'منافسة', 'type' => 'general', 'status' => 'active']);
     $pu = User::factory()->create(['role' => 'provider']);
-    ProviderProfile::create(['user_id' => $pu->id, 'company_name' => 'مورد', 'status' => 'approved']);
+    $prov = ProviderProfile::create(['user_id' => $pu->id, 'company_name' => 'مورد', 'status' => 'approved']);
+    Payment::create(['type' => 'brochure_fee', 'tender_id' => $tender->id, 'provider_id' => $prov->id, 'paid_to' => 'client', 'amount' => 0, 'status' => 'paid']);
 
     $this->actingAs($pu)->post("/provider/tenders/{$tender->id}/offer", [
         'technical_file' => UploadedFile::fake()->create('t.pdf', 10, 'application/pdf'),

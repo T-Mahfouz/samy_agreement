@@ -35,7 +35,7 @@ class ProfileController extends Controller
 
         $data = $request->validate([
             'company_name' => ['required', 'string', 'max:255'],
-            'mobile' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\s()-]+$/'],
+            'mobile' => ['required', 'string', 'max:20', 'regex:/^[0-9+\s()-]+$/'],
             'bank_name' => ['nullable', 'string', 'max:255'],
             'bank_beneficiary_name' => ['nullable', 'string', 'max:255'],
             'bank_iban' => ['nullable', 'string', 'max:50'],
@@ -43,6 +43,7 @@ class ProfileController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
         ], [
+            'mobile.required' => 'رقم الجوال مطلوب.',
             'mobile.regex' => 'رقم الجوال يجب أن يحتوي على أرقام فقط.',
         ], ['company_name' => 'اسم المنشأة', 'mobile' => 'رقم الجوال', 'bank_iban' => 'رقم الآيبان']);
 

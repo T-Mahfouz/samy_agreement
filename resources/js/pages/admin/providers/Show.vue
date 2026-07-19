@@ -24,7 +24,6 @@ interface Provider {
     status: 'pending' | 'approved' | 'rejected';
     user?: { id: number; name: string; username: string | null; email: string; phone: string | null; status: string } | null;
     main_category?: { id: number; name: string } | null;
-    sub_category?: { id: number; name: string } | null;
     documents: Doc[];
 }
 
@@ -68,7 +67,6 @@ const info = [
     { label: 'تاريخ الإصدار (هجري)', value: props.provider.cr_issue_date_hijri },
     { label: 'الجوال', value: props.provider.mobile },
     { label: 'القطاع الرئيسي', value: props.provider.main_category?.name },
-    { label: 'النشاط الفرعي', value: props.provider.sub_category?.name },
 ];
 
 const setStatus = (status: string) => {

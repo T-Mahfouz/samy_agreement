@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Client;
 
+use App\Http\Controllers\Concerns\ErasesRecords;
 use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use App\Models\Offer;
@@ -12,6 +13,8 @@ use Inertia\Response;
 
 class DashboardController extends Controller
 {
+    use ErasesRecords;
+
     public function index(Request $request): Response
     {
         $client = $request->user()->clientProfile;
@@ -57,8 +60,8 @@ class DashboardController extends Controller
     {
         abort_unless($tender->client_id === $request->user()->clientProfile?->id, 403);
 
-        $tender->update(['status' => 'cancelled']);
+        $this->eraseTender($tender);
 
-        return back()->with('success', 'تم إلغاء المنافسة.');
+        return back()->with('success', 'تم إلغاء المنافسة وحذفها نهائيًا.');
     }
 }

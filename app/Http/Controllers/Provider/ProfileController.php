@@ -30,7 +30,6 @@ class ProfileController extends Controller
                 'cr_type' => $p->cr_type,
                 'mobile' => $p->mobile,
                 'main_category_id' => $p->main_category_id,
-                'sub_category_id' => $p->sub_category_id,
                 'activity_description' => $p->activity_description,
             ] : null,
             'documents' => $p ? $this->providerDocumentsByField($p) : [],
@@ -49,9 +48,8 @@ class ProfileController extends Controller
             'commercial_register_no' => ['nullable', 'string', 'max:20', 'regex:/^[0-9]+$/'],
             'cr_issue_date' => ['nullable', 'date', 'before_or_equal:today'],
             'cr_type' => ['nullable', 'string', 'max:255'],
-            'mobile' => ['nullable', 'string', 'max:20', 'regex:/^[0-9+\s()-]+$/'],
+            'mobile' => ['required', 'string', 'max:20', 'regex:/^[0-9+\s()-]+$/'],
             'main_category_id' => ['nullable', 'exists:categories,id'],
-            'sub_category_id' => ['nullable', 'exists:categories,id'],
             'activity_description' => ['nullable', 'string'],
             'username' => ['nullable', 'string', 'max:255', Rule::unique('users', 'username')->ignore($user->id)],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
@@ -59,6 +57,7 @@ class ProfileController extends Controller
 
             ...$this->providerDocumentRules(),
         ], [
+            'mobile.required' => 'رقم الجوال مطلوب.',
             'mobile.regex' => 'رقم الجوال يجب أن يحتوي على أرقام فقط.',
             'commercial_register_no.regex' => 'رقم السجل التجاري يجب أن يحتوي على أرقام فقط.',
             'cr_issue_date.before_or_equal' => 'لا يمكن أن يكون تاريخ إصدار السجل التجاري في المستقبل.',
@@ -77,7 +76,6 @@ class ProfileController extends Controller
             'cr_type' => $data['cr_type'] ?? null,
             'mobile' => $data['mobile'] ?? null,
             'main_category_id' => $data['main_category_id'] ?? null,
-            'sub_category_id' => $data['sub_category_id'] ?? null,
             'activity_description' => $data['activity_description'] ?? null,
         ]);
 

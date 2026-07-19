@@ -52,7 +52,10 @@ const statusLabels: Record<string, string> = { pending: 'قيد المراجعة
                                             <td class="dark-color ltr">{{ Number(r.amount).toLocaleString('en', { minimumFractionDigits: 2 }) }}</td>
                                             <td><a v-if="r.receipt_file" :href="`/payments/${r.id}/receipt`" target="_blank" class="second-color"><u>مشاهدة الإيصال</u></a><span v-else class="dark-color">—</span></td>
                                             <td>
-                                                <a v-if="r.status === 'paid' && r.has_file" :href="`/provider/tenders/${r.tender_id}/brochure/download`" class="main_btn second fs-14 pe_16 pst_16" role="button">تحميل كراسة الشروط</a>
+                                                <div v-if="r.status === 'paid' && r.has_file" class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
+                                                    <a :href="`/provider/tenders/${r.tender_id}/brochure/download?inline=1`" target="_blank" rel="noopener" class="second-color fs-14"><u>معاينة</u></a>
+                                                    <a :href="`/provider/tenders/${r.tender_id}/brochure/download`" class="main_btn second fs-14 pe_16 pst_16" role="button">تحميل كراسة الشروط</a>
+                                                </div>
                                                 <span v-else-if="r.status === 'paid' && !r.has_file" class="fs-14 dark-color">تم الاعتماد — كراسة الشروط غير مرفوعة بعد</span>
                                                 <span v-else class="fs-14" :class="r.status === 'rejected' ? 'red-color' : 'dark-color'">{{ statusLabels[r.status] }}</span>
                                             </td>

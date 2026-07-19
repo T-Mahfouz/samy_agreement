@@ -62,6 +62,7 @@ Route::middleware(['auth', 'admin'])
         Route::get('providers', [ProviderController::class, 'index'])->name('providers.index');
         Route::get('providers/{provider}', [ProviderController::class, 'show'])->name('providers.show');
         Route::put('providers/{provider}', [ProviderController::class, 'update'])->name('providers.update');
+        Route::delete('providers/{provider}', [ProviderController::class, 'destroy'])->name('providers.destroy');
 
         Route::get('messages', [ContactMessageController::class, 'index'])->name('messages.index');
         Route::put('messages/{message}', [ContactMessageController::class, 'update'])->name('messages.update');
@@ -75,6 +76,7 @@ Route::middleware(['auth', 'admin'])
         Route::get('clients', [ClientController::class, 'index'])->name('clients.index');
         Route::get('clients/{client}', [ClientController::class, 'show'])->name('clients.show');
         Route::put('clients/{client}', [ClientController::class, 'update'])->name('clients.update');
+        Route::delete('clients/{client}', [ClientController::class, 'destroy'])->name('clients.destroy');
 
         Route::get('inquiries', [InquiryController::class, 'index'])->name('inquiries.index');
         Route::put('inquiries/{inquiry}', [InquiryController::class, 'update'])->name('inquiries.update');

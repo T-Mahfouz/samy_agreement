@@ -36,11 +36,13 @@ const uniq = (arr: (string | undefined | null)[]) => [...new Set(arr.filter(Bool
 const region = (t: Tender) => { const n = uniq((t.locations ?? []).map((l) => l.region?.name)); return n.length ? n.join('، ') : '—'; };
 const city = (t: Tender) => { const n = uniq((t.locations ?? []).map((l) => l.city?.name)); return n.length ? n.join('، ') : '—'; };
 
-const offersEnded = (t: Tender) => {
+const offersOpened = (t: Tender) => {
     if (t.status === 'cancelled') return false;
-    if (!t.offers_deadline) return false;
-    const time = t.offers_deadline_time ? t.offers_deadline_time.slice(0, 5) : '23:59';
-    return new Date(`${t.offers_deadline}T${time}:00`).getTime() <= Date.now();
+    const openDate = t.offers_open ?? t.offers_deadline;
+    if (!openDate) return false;
+    const rawTime = t.offers_open ? t.offers_open_time : t.offers_deadline_time;
+    const time = rawTime ? rawTime.slice(0, 5) : (t.offers_open ? '00:00' : '23:59');
+    return new Date(`${openDate}T${time}:00`).getTime() <= Date.now();
 };
 const price = (v: string) => (Number(v) > 0 ? `${Number(v).toLocaleString('en')} ريال` : 'مجانية');
 const durationLabels: Record<number, string> = { 3: '3 شهور', 6: '6 شهور', 12: '1 سنة', 24: '2 سنة', 36: '3 سنة', 48: '4 سنة', 60: '5 سنة' };
@@ -53,7 +55,9 @@ const remaining = (date: string | null) => {
 
 const logout = () => router.post('/logout');
 const cancelTender = (t: Tender) => {
-    if (confirm(`إلغاء المنافسة «${t.name}»؟`)) router.put(`/client/tenders/${t.id}/cancel`);
+    if (confirm(`سيتم حذف المنافسة «${t.name}» وجميع بياناتها (العروض والمدفوعات والعقد) نهائيًا ولا يمكن التراجع. هل أنت متأكد؟`)) {
+        router.put(`/client/tenders/${t.id}/cancel`, {}, { preserveScroll: true });
+    }
 };
 </script>
 
@@ -148,10 +152,10 @@ const cancelTender = (t: Tender) => {
                                                 <td class="text-center">
                                                     <div class="d-flex flex-column align-items-center gap-2">
                                                         <span class="third-color">{{ t.offers_count }} عرض مقدم</span>
-                                                        <Link v-if="offersEnded(t)" :href="`/client/tenders/${t.id}/offers`" class="main_btn second shadow d-inline-flex align-items-center gap-2 w-124 fs-14 pe_8 pst_8">
+                                                        <Link v-if="offersOpened(t)" :href="`/client/tenders/${t.id}/offers`" class="main_btn second shadow d-inline-flex align-items-center gap-2 w-124 fs-14 pe_8 pst_8">
                                                             <img :src="img('file.png')" alt="" class="m-0"> فحص العروض
                                                         </Link>
-                                                        <span v-else class="fs-14 dark-color text-center">يُتاح فحص العروض بعد انتهاء موعد التقديم</span>
+                                                        <span v-else class="fs-14 dark-color text-center">يُتاح فحص العروض بعد موعد ووقت فتح العروض</span>
                                                     </div>
                                                 </td>
                                             </tr></tbody>
@@ -165,9 +169,6 @@ const cancelTender = (t: Tender) => {
                                             طلبات كراسة الشروط
                                         </Link>
                                         <div class="d-flex align-items-center gap-2 flex-wrap">
-                                            <Link :href="`/client/tenders/${t.id}/edit`" class="main_btn light d-inline-flex align-items-center gap-2 fs-14">
-                                                <img :src="img('profile-edit-green.png')" alt="" class="m-0"> تعديل المنافسة
-                                            </Link>
                                             <a v-if="t.status !== 'cancelled'" href="#" @click.prevent="cancelTender(t)" class="main_btn red_light d-inline-flex align-items-center gap-2 fs-14">
                                                 <img :src="img('profile-delete.png')" alt="" class="m-0"> إلغاء المنافسة
                                             </a>

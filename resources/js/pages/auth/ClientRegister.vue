@@ -55,7 +55,7 @@ const submit = () => form.post('/register', { onError: () => { form.password = '
                                     </div>
                                     <div class="col-12 col-sm-6 col-md-6 col-lg-2">
                                         <div class="form-group">
-                                            <label for="mobile">رقم الجوال</label>
+                                            <label for="mobile">رقم الجوال <span class="red-color">*</span></label>
                                             <input type="tel" inputmode="numeric" class="form-control" id="mobile" v-model="form.mobile" placeholder="05xxxxxxxx" dir="ltr">
                                             <small v-if="form.errors.mobile" class="red-color d-block">{{ form.errors.mobile }}</small>
                                         </div>

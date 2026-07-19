@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import AdminLayout from '@/layouts/AdminLayout.vue';
 import { type BreadcrumbItem, type Paginated } from '@/types';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Ban, Check, Eye } from 'lucide-vue-next';
+import { Ban, Check, Eye, Trash2 } from 'lucide-vue-next';
 
 interface Client {
     id: number;
@@ -34,6 +34,12 @@ const setStatus = (c: Client, status: string) => {
     const verb = status === 'active' ? 'تفعيل' : 'تعليق';
     if (confirm(`${verb} حساب «${c.company_name}»؟`)) {
         router.put(`/admin/clients/${c.id}`, { status }, { preserveScroll: true });
+    }
+};
+
+const deleteClient = (c: Client) => {
+    if (confirm(`⚠️ حذف نهائي\n\nسيتم حذف المستفيد «${c.company_name}» وحسابه وكل منافساته والعروض والعقود والمدفوعات المرتبطة نهائيًا، ولا يمكن التراجع.\n\nهل أنت متأكد؟`)) {
+        router.delete(`/admin/clients/${c.id}`);
     }
 };
 </script>
@@ -74,6 +80,7 @@ const setStatus = (c: Client, status: string) => {
                                         <Button variant="ghost" size="icon" as-child><Link :href="`/admin/clients/${c.id}`"><Eye class="size-4" /></Link></Button>
                                         <Button v-if="c.user?.status !== 'active'" variant="ghost" size="icon" class="text-emerald-600 hover:text-emerald-700" title="تفعيل" @click="setStatus(c, 'active')"><Check class="size-4" /></Button>
                                         <Button v-else variant="ghost" size="icon" class="text-red-600 hover:text-red-700" title="تعليق" @click="setStatus(c, 'suspended')"><Ban class="size-4" /></Button>
+                                        <Button variant="ghost" size="icon" class="text-red-700 hover:bg-red-50 hover:text-red-800" title="حذف نهائي" @click="deleteClient(c)"><Trash2 class="size-4" /></Button>
                                     </div>
                                 </td>
                             </tr>
