@@ -1,1 +1,0 @@
-import{d as s,a as t,o as a,t as o}from"./app-Ch8sppDV.js";const n={class:"d-block",style:{"margin-top":"8px",color:"#8a8f99","font-size":"12px","line-height":"1.6"}},l=s({__name:"FileTypeHint",props:{exts:{},maxMb:{}},setup(p){return(e,r)=>(a(),t("small",n," الصيغ المسموحة: "+o(e.exts)+" — أقصى حجم للملف "+o(e.maxMb)+" ميجابايت ",1))}});export{l as _};

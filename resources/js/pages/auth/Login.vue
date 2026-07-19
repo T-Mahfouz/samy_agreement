@@ -92,7 +92,7 @@ const submit = () => {
                     </button>
                 </form>
 
-                <div class="auth_split__divider mt_32 mb_24"><span>أو</span></div>
+                <!-- <div class="auth_split__divider mt_32 mb_24"><span>أو</span></div>
 
                 <p class="dark-color fs-14 text-center mb_12">ليس لديك حساب؟ أنشئ حسابك الآن</p>
                 <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
@@ -102,7 +102,7 @@ const submit = () => {
                     <Link href="/register?role=client" class="main_btn light d-flex align-items-center justify-content-center gap-2">
                         <img :src="img('user-green.png')" alt="" class="m-0" /> طالب خدمة - مستفيد
                     </Link>
-                </div>
+                </div> -->
             </div>
         </section>
 
